@@ -1,0 +1,22 @@
+{
+  "name": "arisoutre",
+  "version": "3.0.0",
+  "description": "Bot discord Antre des loutres",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/L-Antre-des-Loutres/Arisoutre.git"
+  },
+  "author": "Mathéo-1712 et Corentin-cott",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/L-Antre-des-Loutres/Arisoutre/issues"
+  },
+  "homepage": "https://github.com/L-Antre-des-Loutres/Arisoutre#readme",
+  "dependencies": {
+    "discord.js": "^14.15.2"
+  }
+}
