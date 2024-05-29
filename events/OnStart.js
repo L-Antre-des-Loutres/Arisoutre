@@ -10,11 +10,10 @@ module.exports = {
 
         // Noms des salons à créer
         const channelNames = [
-            'logs-global',
-            'logs-edit',
-            'logs-suppression',
-            'logs-erreur',
-            'mc-myadmin',
+            '🦦logs-global',
+            '🍜logs-edit-suppression',
+            '❌logs-erreur',
+            '📃mc-myadmin',
         ];
 
         // Tableau pour stocker les noms des salons existants
