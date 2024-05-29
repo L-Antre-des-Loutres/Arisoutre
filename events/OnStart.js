@@ -1,5 +1,5 @@
-const { Events, ChannelType } = require('discord.js');
-const { categoryName, guildId } = require('../config.json'); // Ajoutez guildId dans votre config.json
+const { Events, ChannelType, PermissionFlagsBits, Colors } = require('discord.js');
+const { categoryName, guildId, roleName } = require('../config.json'); // Ajoutez roleName dans votre config.json
 
 module.exports = {
     name: Events.ClientReady,
@@ -8,14 +8,19 @@ module.exports = {
         console.log(`Ready! Logged in as ${client.user.tag}`);
         client.user.setActivity('!help');
 
-        // Tableau pour stocker les salons
+        // Noms des salons à créer
+        const channelNames = [
+            'logs-global',
+            'logs-edit',
+            'logs-suppression',
+            'logs-erreur',
+            'mc-myadmin',
+        ];
+
+        // Tableau pour stocker les noms des salons existants
         const channelsDiscord = [];
 
-        // Stocke l'id de la catégorie
-        let category;
-
         try {
-
             // Récupère la guild
             const guild = client.guilds.cache.get(guildId);
             if (!guild) {
@@ -23,93 +28,71 @@ module.exports = {
                 return;
             }
 
-            // Récupère la liste des salons et stock la liste dans un tableau
+            // Récupère la liste des salons et stocke les noms dans un tableau
             guild.channels.cache.forEach(channel => {
-                console.log(`Fetched channel ${channel.name}`);
                 channelsDiscord.push(channel.name);
-
-                // Rajoute l'id de la catégorie dans le tableau
-                if (channel.type === ChannelType.GuildCategory) {
-                    channelsDiscord.push(channel.name);
-                }
             });
 
+            // Vérifie si le rôle existe déjà
+            let role = guild.roles.cache.find(r => r.name === roleName);
+            if (!role) {
+                // Crée un rôle spécifique
+                role = await guild.roles.create({
+                    name: roleName,
+                    color: Colors.Blue,
+                    reason: 'Role spécifique pour la catégorie',
+                });
+                console.log(`Rôle "${roleName}" créé !`);
+            } else {
+                console.log(`Le rôle "${roleName}" existe déjà`);
+            }
 
             // Vérifie si la catégorie existe déjà
-            if (channelsDiscord.includes(categoryName)) {
+            let category = guild.channels.cache.find(channel => channel.name === categoryName && channel.type === ChannelType.GuildCategory);
+
+            if (category) {
                 console.log(`La catégorie "${categoryName}" existe déjà`);
-
-                // Récupère l'id de la catégorie déjà existante
-                category = guild.channels.cache.find(channel => channel.name === categoryName && channel.type === ChannelType.GuildCategory);
-
             } else {
-                // Crée une catégorie
+                // Crée une catégorie avec les permissions pour le rôle spécifique
                 category = await guild.channels.create({
                     name: categoryName,
                     type: ChannelType.GuildCategory,
+                    permissionOverwrites: [
+                        {
+                            id: guild.id, // ID du serveur
+                            deny: [PermissionFlagsBits.ViewChannel], // Interdire la vue des salons à tout le monde par défaut
+                        },
+                        {
+                            id: role.id, // ID du rôle spécifique
+                            allow: [PermissionFlagsBits.ViewChannel], // Autoriser la vue des salons pour le rôle spécifique
+                        },
+                    ],
                 });
-                console.log(`Catégorie "${categoryName}" créée !`);
+                console.log(`Catégorie "${categoryName}" créée avec les permissions !`);
             }
 
-            // Crée des salons à l'intérieur de la catégorie
-
-            // Vérifie si les salons existent déjà
-            if (channelsDiscord.includes('logs-global')) {
-                console.log(`Le salon "logs-global" existe déjà`);
-            } else {
-                await guild.channels.create({
-                    name: 'logs-global',
-                    type: ChannelType.GuildText,
-                    parent: category.id,
-                });
-                console.log(`Salon "logs-global" créé !`);
-            }
-
-            if (channelsDiscord.includes('logs-edit')) {
-                console.log(`Le salon "logs-edit" existe déjà`);
-            } else {
-                await guild.channels.create({
-                    name: 'logs-edit',
-                    type: ChannelType.GuildText,
-                    parent: category.id,
-                });
-                console.log(`Salon "logs-edit" créé !`);
-            }
-
-            if (channelsDiscord.includes('logs-suppression')) {
-                console.log(`Le salon "logs-suppression" existe déjà`);
-            }
-            else {
-                await guild.channels.create({
-                    name: 'logs-suppression',
-                    type: ChannelType.GuildText,
-                    parent: category.id,
-                });
-                console.log(`Salon "logs-suppression" créé !`);
-            }
-
-            if (channelsDiscord.includes('logs-erreur')) {
-                console.log(`Le salon "logs-erreur" existe déjà`);
-            }
-            else {
-                await guild.channels.create({
-                    name: 'logs-erreur',
-                    type: ChannelType.GuildText,
-                    parent: category.id,
-                });
-                console.log(`Salon "logs-erreur" créé !`);
-            }
-
-            if (channelsDiscord.includes('mc-myadmin')) {
-                console.log(`Le salon "mc-myadmin" existe déjà`);
-            }
-            else {
-                await guild.channels.create({
-                    name: 'mc-myadmin',
-                    type: ChannelType.GuildText,
-                    parent: category.id,
-                });
-                console.log(`Salon "mc-myadmin" créé !`);
+            // Crée des salons à l'intérieur de la catégorie avec les mêmes permissions
+            for (const channelName of channelNames) {
+                if (channelsDiscord.includes(channelName)) {
+                    console.log(`Le salon "${channelName}" existe déjà`);
+                } else {
+                    await guild.channels.create({
+                        name: channelName,
+                        type: ChannelType.GuildText,
+                        parent: category.id,
+                        permissionOverwrites: [
+                            {
+                                id: guild.id,
+                                deny: [PermissionFlagsBits.ViewChannel],
+                            },
+                            {
+                                id: role.id,
+                                allow: [PermissionFlagsBits.ViewChannel],
+                            },
+                        ],
+                    });
+                    console.log(`Salon "${channelName}" créé !`);
+                }
             }
         } catch (error) {
             console.error(`Erreur lors de la création des salons : ${error}`);
