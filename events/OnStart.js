@@ -13,7 +13,6 @@ module.exports = {
             '🦦logs-global',
             '🍜logs-edit-suppression',
             '❌logs-erreur',
-            '📃mc-myadmin',
         ];
 
         // Tableau pour stocker les noms des salons existants
