@@ -4,33 +4,33 @@ module.exports = {
     name: Events.MessageUpdate,
     async execute(message) {
 
-        // Vérifie si le message a été édité par un bot
+        // VÃ©rifie si le message a Ã©tÃ© Ã©ditÃ© par un bot
         if (message.author.bot) return;
 
-        // Déclaration des variables
-        const oldMessage = await message.fetch()
+        // DÃ©claration des variables
+        const messageContent = await message.fetch()
         const messageChannel = message.channel.name;
-        const messageContent = message.content;
+        const oldMessage = message.content;
         const user = message.author.tag;
         const userPdp = message.author.displayAvatarURL({ dynamic: true });
 
-        // Récupère le salon de logs dans lequel envoyer le message
-        const channelName = '🍜logs-edit-suppression';
+        // RÃ©cupÃ¨re le salon de logs dans lequel envoyer le message
+        const channelName = 'ðŸœlogs-edit-suppression';
         const channel = message.guild.channels.cache.find(ch => ch.name === channelName);
 
-        // Vérifie si les variables sont définies
-        if (!oldMessage) return console.error(`Message ${message.id} non trouvé`);
-        if (!channel) return console.error(`Channel ${channelName} non trouvé`);
+        // VÃ©rifie si les variables sont dÃ©finies
+        if (!oldMessage) return console.error(`Message ${message.id} non trouvÃ©`);
+        if (!channel) return console.error(`Channel ${channelName} non trouvÃ©`);
 
         try {
 
-            // Crée un embed pour le message édité
+            // CrÃ©e un embed pour le message Ã©ditÃ©
             const embed = new EmbedBuilder()
                 .setAuthor({
                     name: `Edit de message dans le salon : ${messageChannel} `,
                 })
                 .setTitle(`Par l'utilisateur : **${user}** `)
-                .setDescription(`Message avant édition :\n\`\`\`\n${oldMessage}\n\`\`\`\nMessage après édition :\n\`\`\`\n${messageContent}\n\`\`\``)
+                .setDescription(`Message avant Ã©dition :\n\`\`\`\n${oldMessage}\n\`\`\`\nMessage aprÃ¨s Ã©dition :\n\`\`\`\n${messageContent}\n\`\`\``)
                 .setThumbnail(userPdp)
                 .setColor("#cbcccd")
                 .setFooter({

@@ -3,8 +3,15 @@ const fs = require('fs');
 const path = require('path');
 const { token } = require('./config.json');
 
-// Créer un nouveau client Discord
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+// Crée une nouvelle instance de client
+const client = new Client({
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
+		GatewayIntentBits.GuildMembers,
+	],
+});
 
 client.commands = new Collection();
 client.cooldowns = new Collection();
