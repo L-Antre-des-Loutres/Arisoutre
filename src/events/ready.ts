@@ -63,7 +63,7 @@ const event: BotEvent = {
         });
         console.log(`✅ Rôle "${roleName}" créé !`);
       } else {
-        console.log(`ℹ️ Le rôle "${roleName}" existe déjà`);
+        console.log(`ℹ️  Le rôle "${roleName}" existe déjà`);
       }
 
       // Vérifie si la catégorie existe déjà
@@ -74,7 +74,7 @@ const event: BotEvent = {
       );
 
       if (category) {
-        console.log(`ℹ️ La catégorie "${categoryName}" existe déjà`);
+        console.log(`ℹ️  La catégorie "${categoryName}" existe déjà`);
       } else {
         // Crée une catégorie avec les permissions pour le rôle spécifique
         category = await guild.channels.create({
@@ -97,7 +97,7 @@ const event: BotEvent = {
       // Crée des salons à l'intérieur de la catégorie avec les mêmes permissions
       for (const channelName of channelNames) {
         if (channelsDiscord.includes(channelName)) {
-          console.log(`ℹ️ Le salon "${channelName}" existe déjà`);
+          console.log(`ℹ️  Le salon "${channelName}" existe déjà`);
         } else {
           await guild.channels.create({
             name: channelName,

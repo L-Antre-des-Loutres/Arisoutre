@@ -6,6 +6,11 @@ declare global {
             DISCORD_TOKEN: string;
             DISCORD_CLIENT_ID: string;
             DEV_SERVEUR: string;
+            GUILD_ID: string;
+            CATEGORY_NAME: string;
+            WELCOME_CHANNEL: string;
+            WELCOME_ROLE: string;
+
         }
     }
 }
