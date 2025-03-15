@@ -1,10 +1,13 @@
 {
   "name": "arisoutre",
-  "version": "3.0.0",
+  "version": "2.0.0",
   "description": "Bot discord Antre des loutres",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "dev": "npm run build && node build/index.js",
+    "start": "node ./build/index.js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +20,11 @@
   },
   "homepage": "https://github.com/L-Antre-des-Loutres/Arisoutre#readme",
   "dependencies": {
-    "discord.js": "^14.15.2"
+    "discord.js": "^14.15.2",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^8.2.3",
+    "@types/node": "^22.13.10"
   }
 }
