@@ -1,14 +1,14 @@
-import { Client, TextChannel, EmbedBuilder } from "discord.js";
+import { Client, TextChannel, EmbedBuilder, ColorResolvable } from "discord.js";
 
-export function logsMessage(message: string, title: string, client: Client) {
+export function logsMessage(title: string, message: string, client: Client, color: string = "#cbcccd") {
     const channellogsId = "1254821922462634049";
 
     // Fait un embed pour le message
     const embed = new EmbedBuilder()
-        .setAuthor({ name: `📃 Tâche périodique : ${title}` })
+        .setAuthor({ name: `${title}` })
         .setTitle(`Par : **Arisoutre**`)
         .setDescription(message)
-        .setColor("#cbcccd")
+        .setColor(color as ColorResolvable)
         .setTimestamp();
 
     // Envoie le message dans le salon de logs

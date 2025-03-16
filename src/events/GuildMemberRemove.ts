@@ -1,5 +1,7 @@
 import { GuildMember, Events, TextChannel } from "discord.js";
 import { BotEvent } from "../types";
+import UtilisateursDiscord from "../database/Models/Utilisateurs_discord";
+import { logsMessage } from "../utils/message/logsMessage";
 
 const event : BotEvent   = {
     name: Events.GuildMemberRemove,
@@ -20,6 +22,10 @@ const event : BotEvent   = {
             const user = member.user.tag;
 
             welcomeChannel.send(`${user} a quitté notre antre... Il nage maintenant dans d'autres eaux. À bientôt, et prends soin de toi, loutre voyageuse ! 🦦🌊`);
+
+            // Supprime le membre de la base de données
+            UtilisateursDiscord.delete(member.id);
+            logsMessage( "Suppression en base de données", `📋 Membre supprimé : ${member.user.tag}`, guild.client, "#fc0303");
 
         } catch (error) {
             console.log('Erreur lors de l\'envoi du message de bienvenue :', error);

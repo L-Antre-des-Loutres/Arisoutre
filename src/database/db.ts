@@ -77,4 +77,20 @@ export class Database {
             return { results: [], fields: [] };
         }
     }
+
+    // Méthode pour supprimer des données dans une table
+    async delete(table: string, values: any) {
+        try {
+            const setClause = Object.keys(values)
+                .map(key => `${key} = ?`)
+                .join(', ');
+            const deleteValues = Object.values(values);
+            const sql = `DELETE FROM ${table} WHERE ?`;
+            const [results, fields] = await this.pool.execute(sql, deleteValues);
+            return { results, fields };
+        } catch (error) {
+            console.error("❌ Erreur lors de la suppression : ", error);
+            return { results: [], fields: [] };
+        }
+    }
 }

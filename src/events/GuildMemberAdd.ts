@@ -1,5 +1,7 @@
-import { GuildMember, Events, EmbedBuilder, userMention, roleMention, TextChannel } from "discord.js";
+import { GuildMember, Events, EmbedBuilder, userMention, roleMention, TextChannel, Client } from "discord.js";
 import { BotEvent } from "../types";
+import { logsMessage } from "../utils/message/logsMessage";
+import UtilisateursDiscord from "../database/Models/Utilisateurs_discord";
 
 const event : BotEvent   = {
     name: Events.GuildMemberAdd,
@@ -33,7 +35,18 @@ const event : BotEvent   = {
                 .setColor("#00b0f4");
             welcomeChannel.send({ embeds: [embed] });
 
-            welcomeChannel.send(rolePing + ` merci de bien l'accueillir et de l'orienter au nécessaire !`);
+            welcomeChannel.send(`${rolePing} merci de bien l'accueillir et de l'orienter au nécessaire !`);
+
+
+            // Envoie un message dans le salon de logs
+            try {
+            UtilisateursDiscord.register(new UtilisateursDiscord(member.id, member.user.username, member.joinedAt?.toISOString().slice(0, 19).replace('T', ' ') ?? '0000-00-00 00:00:00'));
+            logsMessage( "Enregistrement en base de données", `📋 Nouveau membre : ${member.user.tag}`, guild.client, "#0bde00");
+
+            } catch (error) {
+                console.error("❌ Erreur lors de l'enregistrement du membre :", error);
+            }
+
         } catch (error) {
             console.log('Erreur lors de l\'envoi du message de bienvenue :', error);
         }

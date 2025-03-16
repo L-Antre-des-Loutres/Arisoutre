@@ -16,6 +16,19 @@ export class UtilisateursDiscord implements I_Utilisateurs_discord {
         return "utilisateurs_discord";
     }
 
+    static async getAll() {
+        // Récupérer tous les utilisateurs
+        const db = new Database();
+
+        // Vérifie si le membre est déjà enregistré
+        try {
+            const utilisateursDiscord = await db.select(UtilisateursDiscord.getTableName(), []);
+            return utilisateursDiscord;
+        } catch (error) {
+            console.error('❌ Erreur lors de la récupération des utilisateurs : ', error);
+        }
+    }
+
     static async register(utilisateurDiscord: UtilisateursDiscord): Promise<void> {
         const db = new Database();
 
@@ -36,6 +49,18 @@ export class UtilisateursDiscord implements I_Utilisateurs_discord {
             console.error('❌ Erreur lors de l\'enregistrement de l\'utilisateur : ', error);
         }
     }
+
+    static async delete(discord_id: string) {
+        const db = new Database();
+
+        try {
+            // Supprime le membre de la base de données
+            await db.delete(UtilisateursDiscord.getTableName(), [discord_id]);
+        } catch (error) {
+            console.error('❌ Erreur lors de la suppression de l\'utilisateur : ', error);
+        }
+    }
+
 }
 
 export default UtilisateursDiscord;
