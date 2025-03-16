@@ -1,5 +1,6 @@
 import { Events, ChannelType, PermissionFlagsBits, Colors, Client, Guild } from "discord.js";
 import { BotEvent } from "../types";
+import { getAllMembers } from "../handlers/user/getAllMembers";
 
 const event: BotEvent = {
   name: Events.ClientReady,
@@ -38,6 +39,13 @@ const event: BotEvent = {
 
     // Tableau pour stocker les noms des salons existants
     const channelsDiscord: string[] = [];
+
+    try {
+      // Enregistre les membres dans la base de données
+      await getAllMembers(client, guildId);
+    }
+    
+    catch (error) { console.error("❌ Erreur lors de l'enregistrement des membres : ", error); }
 
     try {
       // Récupère la guild

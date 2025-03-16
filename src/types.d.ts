@@ -10,6 +10,10 @@ declare global {
             CATEGORY_NAME: string;
             WELCOME_CHANNEL: string;
             WELCOME_ROLE: string;
+            DB_HOST: string;
+            DB_USER: string;
+            DB_PASSWORD: string;
+            DB_NAME: string;
 
         }
     }
@@ -29,6 +33,12 @@ export interface BotEvent {
     name: string,
     once?: boolean | false,
     execute: (...args: any) => void
+}
+
+export interface I_Utilisateurs_discord {
+    discord_id: string,
+    pseudo_discord: string,
+    join_date_discord: string,
 }
 
 export interface SlashCommand {
