@@ -1,5 +1,6 @@
 import { Client } from 'discord.js';
 import UtilisateursDiscord from '../../database/Models/Utilisateurs_discord';
+import { logsMessage } from '../../utils/message/logsMessage';
 
 export async function getAllMembers(client: Client, guildId: string): Promise<void> {
     try {
@@ -22,7 +23,11 @@ export async function getAllMembers(client: Client, guildId: string): Promise<vo
             // Enregistre le membre dans la base de données
             UtilisateursDiscord.register(new UtilisateursDiscord(member.id, member.user.username, joinDate));
 
-        });
+        })
+        
+        // Envoie un message dans le salon de logs
+        logsMessage(`📋 Nombre total de membres enregistrés : ${members.size}`, "Enregistrement des membres", client);
+
     } catch (error) {
         console.error("❌ Erreur lors de la récupération des membres :", error);
         return;
