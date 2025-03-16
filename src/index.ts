@@ -20,7 +20,7 @@ const client = new Client({
 try {
     client.slashCommands = new Collection<string, SlashCommand>();
 
-    const handlersDirs = join(__dirname, "./handlers/discord");
+    const handlersDirs = join(__dirname, "./handlers/command-event");
 
     readdirSync(handlersDirs).forEach(file => {
         require(`${handlersDirs}/${file}`)(client)
