@@ -36,7 +36,6 @@ export class UtilisateursDiscord implements I_Utilisateurs_discord {
             console.error('❌ Erreur lors de l\'enregistrement de l\'utilisateur : ', error);
         }
     }
-
 }
 
 export default UtilisateursDiscord;
