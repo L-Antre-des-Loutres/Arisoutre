@@ -8,7 +8,7 @@ export async function getAllMembers(client: Client, guildId: string): Promise<vo
         const guild = await client.guilds.fetch(guildId);
         const members = await guild.members.fetch();
 
-        // Connexion à la base de données
+        let botCount = 0;
 
         // Enregistre les membres dans la base de données
         members.forEach(async member => {
@@ -16,7 +16,7 @@ export async function getAllMembers(client: Client, guildId: string): Promise<vo
             // console.log(`👤 tag : ${member.user.username} (ID: ${member.id})  pseudo d'affichage : ${member.user.displayName}, ${member.user.bot}`);
 
             // Vérifie si le membre est un bot
-            if (member.user.bot) return;
+            if (member.user.bot) {botCount += 1; return}
 
             // Transforme la date de join en format SQL
             const joinDate = member.joinedAt?.toISOString().slice(0, 19).replace('T', ' ') ?? '0000-00-00 00:00:00';
@@ -27,7 +27,7 @@ export async function getAllMembers(client: Client, guildId: string): Promise<vo
         })
         
         // Envoie un message dans le salon de logs
-        logsMessage("📃 Tâche périodique : Enregistrement des membres", `📋 Nombre total de membres enregistrés : ${members.size}`, client);
+        logsMessage("📃 Tâche périodique : Enregistrement des membres", `📋 Nombre total de membres enregistrés : ${members.size - botCount}`, client);
 
     } catch (error) {
         console.error("❌ Erreur lors de la récupération des membres :", error);

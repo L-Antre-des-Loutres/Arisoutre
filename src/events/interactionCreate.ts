@@ -5,6 +5,7 @@ const event: BotEvent = {
     name: Events.InteractionCreate,
     once: false,
     async execute(interaction: Interaction) {
+        
         if (!interaction.isChatInputCommand()) return;
 
         const command = interaction.client.slashCommands.get(interaction.commandName);
