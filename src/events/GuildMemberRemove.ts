@@ -1,7 +1,7 @@
 import { GuildMember, Events, TextChannel } from "discord.js";
 import { BotEvent } from "../types";
 import UtilisateursDiscord from "../database/Models/Utilisateurs_discord";
-import { logsMessage } from "../utils/message/logsMessage";
+import { logsMessage } from "../utils/message/logs/logsMessage";
 
 const event : BotEvent   = {
     name: Events.GuildMemberRemove,
@@ -10,7 +10,7 @@ const event : BotEvent   = {
         try {
 
             const guild = member.guild;
-            const guilds = { channelBienvenue: process.env.WELCOME_CHANNEL, roleBienvenue: process.env.WELCOME_ROLE };
+            const guilds = { channelBienvenue: process.env.BOT_ADMIN };
 
             const welcomeChannel = guild.channels.cache.get(guilds.channelBienvenue) as TextChannel;
 

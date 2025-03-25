@@ -1,7 +1,7 @@
 
 import { Client } from 'discord.js';
 import UtilisateursDiscord from '../../database/Models/Utilisateurs_discord';
-import { logsMessage } from '../../utils/message/logsMessage';
+import { logsMessage } from '../../utils/message/logs/logsMessage';
 
 export async function getAllMembers(client: Client, guildId: string): Promise<void> {
     try {
