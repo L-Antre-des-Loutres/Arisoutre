@@ -1,11 +1,13 @@
 import { SlashCommandBuilder, TextChannel } from "discord.js"
 import { SlashCommand } from "../types"
+import { errorLogs } from "../utils/message/logs/errorLogs"
 
 export const command: SlashCommand = {
     name: "clear",
     data: new SlashCommandBuilder()
         .setName("clear")
         .setDescription("Affiche le build du personnage demandé")
+        .setDefaultMemberPermissions(0)
         .addStringOption((option) => {
             return option
                 .setName("nombre")
@@ -19,34 +21,43 @@ export const command: SlashCommand = {
         const amountOption = interaction.options.get("nombre")?.value as string
         const amount = parseInt(amountOption)
 
-        if (!amount) {
-            await interaction.reply("Veuillez spécifier un nombre entre 1 et 100.")
-            return
+      
+        if (!amount || amount < 1 || amount > 100) {
+            await interaction.reply({ content: "Veuillez spécifier un nombre entre 1 et 100.", ephemeral: true })
+            return;
         }
 
-        // Vérifie que le nombre est valide et entre 1 et 100
-        if (amount < 1 || amount > 100) {
-
-            await interaction.reply("Veuillez spécifier un nombre entre 1 et 100.")
-            return
-
-        }
+        const channel = interaction.channel as TextChannel;
 
         try {
+            await interaction.deferReply({ ephemeral: true }); // Évite l'erreur d'interaction déjà reconnue
 
-            // Supprime les messages
-            await (interaction.channel as TextChannel).bulkDelete(amount, true)
+            // Récupérer les messages récents
+            const messages = await channel.messages.fetch({ limit: amount });
 
-            // Répondre à l'interaction pour éviter l'erreur
-            await interaction.reply({ content: `Suppression de ${amount} messages.`, ephemeral: true })
+            // Filtrer les messages trop anciens (plus de 14 jours)
+            const filteredMessages = messages.filter(msg => (Date.now() - msg.createdTimestamp) < 14 * 24 * 60 * 60 * 1000)
 
+            if (filteredMessages.size === 0) {
+                await interaction.editReply({ content: "Aucun message récent à supprimer." })
+                return;
+            }
+
+            // Supprime les messages valides
+            await channel.bulkDelete(filteredMessages, true); // true pour permettre la suppression des messages déjà réagi
+
+            // Confirmation
+            await interaction.editReply({ content: `✅ Suppression de ${filteredMessages.size} messages.` })
 
         } catch (error) {
-
-            // Répondre à l'interaction pour éviter l'erreur
-            console.error("Erreur dans la suppression des messages : ", error)
-            await interaction.reply({ content: "Une erreur s'est produite lors de la suppression des messages.", ephemeral: true })
-            return
+            if ((error as any).code === 10008) {
+                console.error("Message introuvable pour suppression :", error);
+                await interaction.editReply({ content: "Le message que vous tentez de supprimer n'est plus disponible." })
+            } else {
+                console.error("Erreur lors de la suppression des messages :", error);
+                await interaction.editReply({ content: "❌ Une erreur s'est produite lors de la suppression des messages." })
+                errorLogs("Erreur lors de la suppression des messages", `👤 tag : ${interaction.user.tag} (ID: ${interaction.user.id}) \n ${error}`, interaction.client)
+            }
         }
     },
 }
