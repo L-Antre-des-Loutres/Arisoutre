@@ -1,69 +1,69 @@
-import { Events, ChannelType, PermissionFlagsBits, Colors, Client, Guild } from "discord.js";
-import { BotEvent } from "../types";
+import { Events, ChannelType, PermissionFlagsBits, Colors, Client, Guild } from "discord.js"
+import { BotEvent } from "../types"
 
 const event: BotEvent = {
   name: Events.ClientReady,
   once: true,
   async execute(client: Client) {
-    console.log(`✅ Ready! Logged in as ${client.user?.tag}`);
-    client.user?.setActivity("Minecraft");
+    console.log(`✅ Ready! Logged in as ${client.user?.tag}`)
+    client.user?.setActivity("Minecraft")
 
     // Noms des salons à créer
     const channelNames: string[] = [
       "🦦logs-global",
       "🍜logs-edit-suppression",
       "❌logs-erreur",
-    ];
+    ]
 
     // ID du serveur
-    const guildId = process.env.GUILD_ID;
+    const guildId = process.env.GUILD_ID
     if (!guildId) {
-      console.error("❌ GuildId non trouvée");
-      return;
+      console.error("❌ GuildId non trouvée")
+      return
     }
 
     // Nom de la catégorie
-    const categoryName = process.env.CATEGORY_NAME;
+    const categoryName = process.env.CATEGORY_NAME
     if (!categoryName) {
-      console.error("❌ CategoryName non trouvée");
-      return;
+      console.error("❌ CategoryName non trouvée")
+      return
     }
 
     // Nom du rôle
-    const roleName = process.env.ROLE_NAME;
+    const roleName = process.env.ROLE_NAME
     if (!roleName) {
-      console.error("❌ RoleName non trouvée");
-      return;
+      console.error("❌ RoleName non trouvée")
+      return
     }
 
     // Tableau pour stocker les noms des salons existants
-    const channelsDiscord: string[] = [];
+    const channelsDiscord: string[] = []
 
     try {
       // Récupère la guild
-      const guild: Guild | undefined = client.guilds.cache.get(guildId);
+      const guild: Guild | undefined = client.guilds.cache.get(guildId)
       if (!guild) {
-        console.error("❌ Guild non trouvée");
-        return;
+        console.error("❌ Guild non trouvée")
+        return
       }
 
       // Récupère la liste des salons et stocke les noms dans un tableau
       guild.channels.cache.forEach((channel) => {
-        channelsDiscord.push(channel.name);
-      });
+        channelsDiscord.push(channel.name)
+      })
 
       // Vérifie si le rôle existe déjà
-      let role = guild.roles.cache.find((r) => r.name === roleName);
+      let role = guild.roles.cache.find((r) => r.name === roleName)
       if (!role) {
         // Crée un rôle spécifique
         role = await guild.roles.create({
           name: roleName,
           color: Colors.Blue,
           reason: "Role spécifique pour la catégorie",
-        });
-        console.log(`✅ Rôle "${roleName}" créé !`);
+        })
+        console.log(`✅ Rôle "${roleName}" créé !`)
       } else {
-        console.log(`ℹ️  Le rôle "${roleName}" existe déjà`);
+        console.log(`ℹ️  Le rôle "${roleName}" existe déjà`)
       }
 
       // Vérifie si la catégorie existe déjà
@@ -71,10 +71,10 @@ const event: BotEvent = {
         (channel) =>
           channel.name === categoryName &&
           channel.type === ChannelType.GuildCategory
-      );
+      )
 
       if (category) {
-        console.log(`ℹ️  La catégorie "${categoryName}" existe déjà`);
+        console.log(`ℹ️  La catégorie "${categoryName}" existe déjà`)
       } else {
         // Crée une catégorie avec les permissions pour le rôle spécifique
         category = await guild.channels.create({
@@ -90,14 +90,14 @@ const event: BotEvent = {
               allow: [PermissionFlagsBits.ViewChannel], // Autoriser la vue des salons pour le rôle spécifique
             },
           ],
-        });
-        console.log(`✅ Catégorie "${categoryName}" créée avec les permissions !`);
+        })
+        console.log(`✅ Catégorie "${categoryName}" créée avec les permissions !`)
       }
 
       // Crée des salons à l'intérieur de la catégorie avec les mêmes permissions
       for (const channelName of channelNames) {
         if (channelsDiscord.includes(channelName)) {
-          console.log(`ℹ️  Le salon "${channelName}" existe déjà`);
+          console.log(`ℹ️  Le salon "${channelName}" existe déjà`)
         } else {
           await guild.channels.create({
             name: channelName,
@@ -113,14 +113,14 @@ const event: BotEvent = {
                 allow: [PermissionFlagsBits.ViewChannel],
               },
             ],
-          });
-          console.log(`✅ Salon "${channelName}" créé !`);
+          })
+          console.log(`✅ Salon "${channelName}" créé !`)
         }
       }
     } catch (error) {
-      console.error(`❌ Erreur lors de la création des salons : ${error}`);
+      console.error(`❌ Erreur lors de la création des salons : ${error}`)
     }
   },
-};
+}
 
-export default event;
+export default event

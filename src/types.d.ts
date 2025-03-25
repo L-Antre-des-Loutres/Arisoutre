@@ -1,25 +1,25 @@
-import { Collection, CommandInteraction, SlashCommandBuilder } from "discord.js";
+import { Collection, CommandInteraction, SlashCommandBuilder } from "discord.js"
 
 declare global {
     namespace NodeJS {
         interface ProcessEnv {
-            DISCORD_TOKEN: string;
-            DISCORD_CLIENT_ID: string;
-            DEV_SERVEUR: string;
-            GUILD_ID: string;
-            CATEGORY_NAME: string;
-            ROLE_NAME: string;
-            WELCOME_CHANNEL: string;
-            WELCOME_ROLE: string;
-            DB_HOST: string;
-            DB_USER: string;
-            DB_PASSWORD: string;
-            DB_NAME: string;
-            LOUTRE_ROLE: string;
-            GLOBAL_LOGS: string;
-            ERROR_LOGS: string;
-            EDITANDSUPPR_LOGS: string;
-            BOT_ADMIN: string;
+            DISCORD_TOKEN: string
+            DISCORD_CLIENT_ID: string
+            DEV_SERVEUR: string
+            GUILD_ID: string
+            CATEGORY_NAME: string
+            ROLE_NAME: string
+            WELCOME_CHANNEL: string
+            WELCOME_ROLE: string
+            DB_HOST: string
+            DB_USER: string
+            DB_PASSWORD: string
+            DB_NAME: string
+            LOUTRE_ROLE: string
+            GLOBAL_LOGS: string
+            ERROR_LOGS: string
+            EDITANDSUPPR_LOGS: string
+            BOT_ADMIN: string
         }
     }
 }
@@ -54,4 +54,4 @@ export interface SlashCommand {
     async autocomplete?: (interaction: CommandInteraction) => Promise<void>
 }
 
-export { };
+export { }

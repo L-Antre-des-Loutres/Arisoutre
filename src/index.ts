@@ -1,10 +1,10 @@
-import { Client, Collection, GatewayIntentBits } from "discord.js";
-import * as dotenv from "dotenv";
-import { readdirSync } from "fs";
-import { join } from "path";
-import { SlashCommand } from "./types";
+import { Client, Collection, GatewayIntentBits } from "discord.js"
+import * as dotenv from "dotenv"
+import { readdirSync } from "fs"
+import { join } from "path"
+import { SlashCommand } from "./types"
 
-dotenv.config();
+dotenv.config()
 
 const client = new Client({
     intents: [
@@ -14,21 +14,21 @@ const client = new Client({
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildMembers,
     ]
-});
+})
 
 
 try {
-    client.slashCommands = new Collection<string, SlashCommand>();
+    client.slashCommands = new Collection<string, SlashCommand>()
 
-    const handlersDirs = join(__dirname, "./handlers/command-event");
+    const handlersDirs = join(__dirname, "./handlers/command-event")
 
     readdirSync(handlersDirs).forEach(file => {
         require(`${handlersDirs}/${file}`)(client)
     })
 
 } catch (error) {
-    console.error("Erreur lors de l'initialisation des commandes slash :", error);
+    console.error("Erreur lors de l'initialisation des commandes slash :", error)
 }
 
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN)
 

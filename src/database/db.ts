@@ -1,7 +1,7 @@
-import * as mysql from "mysql2/promise";
+import * as mysql from "mysql2/promise"
 
 export class Database {
-    private readonly pool: mysql.Pool;
+    private readonly pool: mysql.Pool
 
     constructor() {
         // Création du pool de connexions
@@ -13,52 +13,52 @@ export class Database {
             waitForConnections: true,
             connectionLimit: 10,  // Nombre maximum de connexions simultanées
             queueLimit: 0,  // Pas de limite dans la file d'attente
-        });
+        })
     }
 
     async close() {
         try {
-            await this.pool.end();  // Ferme le pool et libère toutes les connexions
-            console.log("Pool de connexions fermé.");
+            await this.pool.end()  // Ferme le pool et libère toutes les connexions
+            console.log("Pool de connexions fermé.")
         } catch (error) {
-            console.error("❌ Erreur lors de la fermeture du pool de connexions : ", error);
+            console.error("❌ Erreur lors de la fermeture du pool de connexions : ", error)
         }
     }
 
     // Méthode pour exécuter des requêtes génériques
     async query(query: string) {
         try {
-            const [results, fields] = await this.pool.execute(query); 
-            return { results, fields };
+            const [results, fields] = await this.pool.execute(query) 
+            return { results, fields }
         } catch (error) {
-            console.error("❌ Erreur lors de la requête : ", error);
-            return { results: [], fields: [] };
+            console.error("❌ Erreur lors de la requête : ", error)
+            return { results: [], fields: [] }
         }
     }
 
     // Méthode pour effectuer une requête SELECT
     async select(table: string, values: any[]) {
         try {
-            const [results, fields] = await this.pool.execute(`SELECT * FROM ${table} WHERE ?`, values);
-            return { results, fields };
+            const [results, fields] = await this.pool.execute(`SELECT * FROM ${table} WHERE ?`, values)
+            return { results, fields }
         } catch (error) {
-            console.error("❌ Erreur lors de la sélection : ", error);
-            return { results: [], fields: [] };
+            console.error("❌ Erreur lors de la sélection : ", error)
+            return { results: [], fields: [] }
         }
     }
 
     // Méthode pour insérer des données dans une table
     async insert(table: string, values: any) {
         try {
-            const columns = Object.keys(values).join(', ');
-            const placeholders = Object.keys(values).map(() => '?').join(', ');
-            const insertValues = Object.values(values);
-            const sql = `INSERT INTO ${table} (${columns}) VALUES (${placeholders})`;
-            const [results, fields] = await this.pool.execute(sql, insertValues);
-            return { results, fields };
+            const columns = Object.keys(values).join(', ')
+            const placeholders = Object.keys(values).map(() => '?').join(', ')
+            const insertValues = Object.values(values)
+            const sql = `INSERT INTO ${table} (${columns}) VALUES (${placeholders})`
+            const [results, fields] = await this.pool.execute(sql, insertValues)
+            return { results, fields }
         } catch (error) {
-            console.error("❌ Erreur lors de l'insertion : ", error);
-            return { results: [], fields: [] };
+            console.error("❌ Erreur lors de l'insertion : ", error)
+            return { results: [], fields: [] }
         }
     }
 
@@ -67,14 +67,14 @@ export class Database {
         try {
             const setClause = Object.keys(values)
                 .map(key => `${key} = ?`)
-                .join(', ');
-            const updateValues = Object.values(values);
-            const sql = `UPDATE ${table} SET ${setClause} WHERE ${condition}`;
-            const [results, fields] = await this.pool.execute(sql, updateValues);
-            return { results, fields };
+                .join(', ')
+            const updateValues = Object.values(values)
+            const sql = `UPDATE ${table} SET ${setClause} WHERE ${condition}`
+            const [results, fields] = await this.pool.execute(sql, updateValues)
+            return { results, fields }
         } catch (error) {
-            console.error("❌ Erreur lors de la mise à jour : ", error);
-            return { results: [], fields: [] };
+            console.error("❌ Erreur lors de la mise à jour : ", error)
+            return { results: [], fields: [] }
         }
     }
 
@@ -83,14 +83,14 @@ export class Database {
         try {
             const setClause = Object.keys(values)
                 .map(key => `${key} = ?`)
-                .join(', ');
-            const deleteValues = Object.values(values);
-            const sql = `DELETE FROM ${table} WHERE ?`;
-            const [results, fields] = await this.pool.execute(sql, deleteValues);
-            return { results, fields };
+                .join(', ')
+            const deleteValues = Object.values(values)
+            const sql = `DELETE FROM ${table} WHERE ?`
+            const [results, fields] = await this.pool.execute(sql, deleteValues)
+            return { results, fields }
         } catch (error) {
-            console.error("❌ Erreur lors de la suppression : ", error);
-            return { results: [], fields: [] };
+            console.error("❌ Erreur lors de la suppression : ", error)
+            return { results: [], fields: [] }
         }
     }
 }
