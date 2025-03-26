@@ -12,6 +12,9 @@ const event: BotEvent = {
         const guild = member.guild
 
         try {
+
+            if (member.user.bot) return
+
             const guilds = { channelBienvenue: process.env.WELCOME_CHANNEL, roleBienvenue: process.env.WELCOME_ROLE, roleLoutre: process.env.LOUTRE_ROLE }
 
             const welcomeChannel = guild.channels.cache.get(guilds.channelBienvenue) as TextChannel

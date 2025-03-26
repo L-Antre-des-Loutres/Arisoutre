@@ -5,6 +5,9 @@ export default {
   name: Events.MessageUpdate,
   async execute(oldMessage: Message, newMessage: Message) {
     try {
+
+      if (oldMessage.author.bot) return
+
       // Vérifie si le message a été édité par un bot ou si le contenu n'a pas changé
       if (!oldMessage.author || oldMessage.author.bot || oldMessage.content === newMessage.content) return
 
