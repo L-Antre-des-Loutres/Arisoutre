@@ -34,7 +34,7 @@ Arisoutre à un rôle discret mais très important dans notre communauté ! En e
 
 ## Comment l'instaler ?
 
-Il suffit simplement de télécharger la [dernière version](https://github.com/L-Antre-des-Loutres/Arisoutre) de Mineotter dans les release, ou cloner le depot en fesant `git clone https://github.com/L-Antre-des-Loutres/Arisoutre`. Ensuite, vous allez devoir vous rendre dans le fichier `.env` à la racine de projet afin de modifier certains paramètres, comme le token du bot par exemple. 
+Il suffit simplement de télécharger la [dernière version](https://github.com/L-Antre-des-Loutres/Arisoutre) de Mineotter dans les release, ou cloner le depot en fesant `git clone https://github.com/L-Antre-des-Loutres/Arisoutre`. Ensuite, vous allez devoir vous rendre dans le fichier `.env` à la racine de projet afin de modifier certains paramètres, comme le token du bot par exemple, Il faudra ensuite exécuter les commandes `npm install`, `npm run build && npm run start`, et votre bot sera prêt et en cours d’exécution. 
 
 Vous devrez également installer node pour lancer le bot avec la commande `node index.js`.
 
