@@ -6,7 +6,7 @@ export const command: SlashCommand = {
     name: "clear",
     data: new SlashCommandBuilder()
         .setName("clear")
-        .setDescription("Affiche le build du personnage demandé")
+        .setDescription("Supprime le nombre de messages spécifié")
         .setDefaultMemberPermissions(0)
         .addStringOption((option) => {
             return option
