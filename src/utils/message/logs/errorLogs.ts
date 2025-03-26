@@ -1,6 +1,6 @@
 import { Client, TextChannel, EmbedBuilder, ColorResolvable } from "discord.js"
 
-export function errorLogs(title: string, message: string, client: Client, color: string = "#cbcccd") {
+export function errorLogs(title: string, message: string, client: Client, color: string = "#f51302") {
 
     // Fait un embed pour le message
     const embed = new EmbedBuilder()
