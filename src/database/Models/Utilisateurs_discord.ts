@@ -54,7 +54,12 @@ export class UtilisateursDiscord implements I_Utilisateurs_discord {
 
         try {
             // Supprime le membre de la base de données
-            await db.delete(UtilisateursDiscord.getTableName(), [discord_id])
+
+            // Vérifie si l'id discord est valide via un regex
+            const regex = /^\d+$/;
+            if (!regex.exec(discord_id)) {return}
+
+            await db.delete(UtilisateursDiscord.getTableName(), [discord_id], `discord_id = ${discord_id}`)
         } catch (error) {
             console.error('❌ Erreur lors de la suppression de l\'utilisateur : ', error)
         }
