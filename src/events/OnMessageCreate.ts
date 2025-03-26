@@ -4,6 +4,7 @@ import { errorLogs } from "../utils/message/logs/errorLogs"
 export default {
   name: Events.MessageCreate,
   async execute(message: Message) {
+    
     try {
       if (message.author.bot) return
 

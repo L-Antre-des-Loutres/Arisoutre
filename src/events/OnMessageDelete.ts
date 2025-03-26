@@ -4,6 +4,7 @@ import { errorLogs } from "../utils/message/logs/errorLogs"
 export default {
   name: Events.MessageDelete,
   async execute(message: Message) {
+    
     try {
     // Vérifie si le message a été supprimé par un bot ou s'il est vide
     if (!message.author || message.author.bot) return

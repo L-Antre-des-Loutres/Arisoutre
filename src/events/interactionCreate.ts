@@ -7,6 +7,7 @@ const event: BotEvent = {
     name: Events.InteractionCreate,
     once: false,
     async execute(interaction: Interaction) {
+        
         try {
             if (!interaction.isChatInputCommand()) return
 

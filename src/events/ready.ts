@@ -6,6 +6,7 @@ const event: BotEvent = {
   name: Events.ClientReady,
   once: true,
   async execute(client: Client) {
+    
     try {
       console.log(`✅ Ready! Logged in as ${client.user?.tag}`)
       client.user?.setActivity("Minecraft")

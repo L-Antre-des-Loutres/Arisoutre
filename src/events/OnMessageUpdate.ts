@@ -4,6 +4,7 @@ import { errorLogs } from "../utils/message/logs/errorLogs"
 export default {
   name: Events.MessageUpdate,
   async execute(oldMessage: Message, newMessage: Message) {
+    
     try {
       // Vérifie si le message a été édité par un bot ou si le contenu n'a pas changé
       if (!oldMessage.author || oldMessage.author.bot || oldMessage.content === newMessage.content) return

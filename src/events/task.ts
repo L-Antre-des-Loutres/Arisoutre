@@ -6,6 +6,7 @@ const event: BotEvent = {
     name: Events.ClientReady,
     once: true,
     async execute(client: Client): Promise<void> {
+        
         try {
             console.log("✅ Initialisation des tâches périodiques")
 
