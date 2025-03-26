@@ -26,7 +26,7 @@ export class Database {
     }
 
     // Méthode pour exécuter des requêtes génériques
-    async query(query: string) {
+    async query(query: string, p0?: unknown[]) {
         try {
             const [results, fields] = await this.pool.execute(query) 
             return { results, fields }
@@ -79,18 +79,18 @@ export class Database {
     }
 
     // Méthode pour supprimer des données dans une table
-    async delete(table: string, values: any) {
+    async delete(table: string, values: any, clause: string) {
         try {
-            const setClause = Object.keys(values)
-                .map(key => `${key} = ?`)
-                .join(', ')
-            const deleteValues = Object.values(values)
-            const sql = `DELETE FROM ${table} WHERE ?`
-            const [results, fields] = await this.pool.execute(sql, deleteValues)
-            return { results, fields }
+
+            const deleteValues = Object.values(values);
+            const sql = `DELETE FROM ${table} WHERE ${clause}`;
+            
+            const { results, fields } = await this.query(sql, deleteValues);
+            return { results, fields };
         } catch (error) {
-            console.error("❌ Erreur lors de la suppression : ", error)
-            return { results: [], fields: [] }
+            console.error("❌ Erreur lors de la suppression : ", error);
+            return { results: [], fields: [] };
         }
     }
+     
 }
