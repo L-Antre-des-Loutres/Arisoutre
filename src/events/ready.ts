@@ -123,7 +123,7 @@ const event: BotEvent = {
         console.error(`❌ Erreur lors de la création des salons : ${error}`)
       }
     } catch (error) {
-      console.error(`❌ Impossible d'exécuter le code : ${error}`)
+      console.error(`❌ Impossible d'exécuter l\'événement OnReady : ${error}`)
       errorLogs("Erreur lors de l'événement OnReady", `👤 tag : ${client.user?.username} (ID: ${client.user?.id}) \n ${error}`, client)
     }
   },

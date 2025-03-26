@@ -43,7 +43,7 @@ export default {
       console.error(`❌ Impossible d'envoyer le message : ${error}`)
     }
     } catch (error) {
-      console.error(`❌ Impossible d'exécuter le code : ${error}`)
+      console.error(`❌ Impossible d'exécuter l\'événement OnMessageDelete : ${error}`)
       errorLogs("Erreur lors de l'événement OnMessageDelete", `👤 tag : ${message.author.username} (ID: ${message.author.id}) \n ${error}`, message.client)
     }
   },

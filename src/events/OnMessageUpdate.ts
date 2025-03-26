@@ -48,7 +48,7 @@ export default {
       }
     }
     catch (error) {
-      console.error(`❌ Impossible d'exécuter le code : ${error}`)
+      console.error(`❌ Impossible d'exécuter l\'événement OnMessageUpdate : ${error}`)
       errorLogs("Erreur lors de l'événement OnMessageUpdate", `👤 tag : ${oldMessage.author.username} (ID: ${oldMessage.author.id}) \n ${error}`, oldMessage.client)
     }
   },

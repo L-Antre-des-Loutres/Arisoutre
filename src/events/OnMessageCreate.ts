@@ -15,7 +15,7 @@ export default {
         message.react("👻")
       }
     } catch (error) {
-      console.error(`❌ Impossible d'exécuter le code : ${error}`)
+      console.error(`❌ Impossible d'exécuter l\'événement OnMessageCreate : ${error}`)
       errorLogs("Erreur lors de l'événement OnMessageCreate", `👤 tag : ${message.author.username} (ID: ${message.author.id}) \n ${error}`, message.client)
     }
   },

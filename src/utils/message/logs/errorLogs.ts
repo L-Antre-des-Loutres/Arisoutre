@@ -2,16 +2,19 @@ import { Client, TextChannel, EmbedBuilder, ColorResolvable } from "discord.js"
 
 export function errorLogs(title: string, message: string, client: Client, color: string = "#f51302") {
 
-    // Fait un embed pour le message
-    const embed = new EmbedBuilder()
-        .setAuthor({ name: `${title}` })
-        .setTitle(`Par : **Arisoutre**`)
-        .setDescription(message)
-        .setColor(color as ColorResolvable)
-        .setTimestamp()
+    try {
+        // Fait un embed pour le message
+        const embed = new EmbedBuilder()
+            .setAuthor({ name: `${title}` })
+            .setTitle(`Par : **Arisoutre**`)
+            .setDescription(message)
+            .setColor(color as ColorResolvable)
+            .setTimestamp()
 
-    // Envoie le message dans le salon de logs
-    const channel = client.channels.cache.get(process.env.ERROR_LOGS) as TextChannel
-    (channel).send({ embeds: [embed] })
-
+        // Envoie le message dans le salon de logs
+        const channel = client.channels.cache.get(process.env.ERROR_LOGS) as TextChannel
+        (channel).send({ embeds: [embed] })
+    } catch (error) {
+        console.error(`❌ Impossible d'envoyer le message (errorLogs) : ${error}`)
+    }
 }
