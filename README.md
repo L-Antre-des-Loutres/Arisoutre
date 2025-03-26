@@ -20,10 +20,17 @@ Arisoutre est le premier bot de l'Antre des Loutre et éxiste afin de répondes 
 
 ## C'est quoi ces fonctionnalités ?
 
-Arisoutre à un rôle discret mais très important dans notre communauté ! En effet, [...]
+Arisoutre à un rôle discret mais très important dans notre communauté ! En effet, Arisoutre à trois objectifs principaux :
+### Les objectifs d'Arisoutre<br>
+- Permettre à nos utilisateur d'ouvrir des tickets lorsqu'il rencontrent un problème quelconque.
+- Donner aux administrateurs des outils d'administration non proposé nativement par Discord, comme la commande `/clear`.
+- Et enfin Arisoutre à aussi pour rôle d'effectuer des tâches journalières comme l'enregistrement de nos utilisateurs Discord !
 
 > [!TIP]
 > Certaines fonctionnalité peuvent ne pas encore être présentes, nous vous invitons à regarder les [issues de ce dépot](https://github.com/L-Antre-des-Loutres/Arisoutre/issues) pour voir se qui est en developpement, ce qui est en cours, et se qui est prévu.
+
+### Liste des commandes<br>
+- (TODO à remplir)
 
 ## Comment l'instaler ?
 
@@ -31,7 +38,9 @@ Il suffit simplement de télécharger la [dernière version](https://github.com/
 
 Vous devrez également installer node pour lancer le bot avec la commande `node index.js`.
 
-Bien sûr, vous ne gérez probablement pas vos serveurs de la même manière que l'Antre des Loutres, donc vous devrez probablement apporter quelques modifications pour adapter le bot à votre environnement.
+> [!WARNING]
+> Bien sûr, vous ne gérez probablement pas vos serveurs de la même manière que l'Antre des Loutres, donc vous devrez probablement apporter quelques modifications pour adapter le bot à votre environnement.
+
 
 ## Il y a t'il une documentation pour l'améliorer/l'adapter ?
 
@@ -40,4 +49,4 @@ Pas encore mais, mais c'est prévu oui.
 ## Contributions
 
 [Corentin COTTEREAU (Azertor/Cocow)](https://github.com/Corentin-cott)
-[Mathéo PERODEAU (Rerebleue)](https://github.com/matheo-1712)
+& [Mathéo PERODEAU (Rerebleue)](https://github.com/matheo-1712)
