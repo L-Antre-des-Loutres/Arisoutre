@@ -8,9 +8,10 @@ const event: BotEvent = {
     name: Events.GuildMemberAdd,
     once: false,
     async execute(member: GuildMember): Promise<void> {
-        try {
 
-            const guild = member.guild
+        const guild = member.guild
+
+        try {
             const guilds = { channelBienvenue: process.env.WELCOME_CHANNEL, roleBienvenue: process.env.WELCOME_ROLE, roleLoutre: process.env.LOUTRE_ROLE }
 
             const welcomeChannel = guild.channels.cache.get(guilds.channelBienvenue) as TextChannel
@@ -75,6 +76,7 @@ const event: BotEvent = {
 
         } catch (error) {
             console.log('Erreur lors de l\'envoi du message de bienvenue :', error)
+            errorLogs("Erreur lors de l'événement GuildMemberAdd", `👤 tag : ${member.user.username} (ID: ${member.id}) \n ${error}`, guild.client)
         }
     },
 }

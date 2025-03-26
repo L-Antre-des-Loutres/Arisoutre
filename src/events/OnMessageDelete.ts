@@ -1,8 +1,10 @@
 import { Events, EmbedBuilder, Message, TextChannel } from "discord.js"
+import { errorLogs } from "../utils/message/logs/errorLogs"
 
 export default {
   name: Events.MessageDelete,
   async execute(message: Message) {
+    try {
     // Vérifie si le message a été supprimé par un bot ou s'il est vide
     if (!message.author || message.author.bot) return
 
@@ -39,6 +41,10 @@ export default {
       await logChannel.send({ embeds: [embed] })
     } catch (error) {
       console.error(`❌ Impossible d'envoyer le message : ${error}`)
+    }
+    } catch (error) {
+      console.error(`❌ Impossible d'exécuter l\'événement OnMessageDelete : ${error}`)
+      errorLogs("Erreur lors de l'événement OnMessageDelete", `👤 tag : ${message.author.username} (ID: ${message.author.id}) \n ${error}`, message.client)
     }
   },
 }
