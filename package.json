@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/L-Antre-des-Loutres/Arisoutre#readme",
   "dependencies": {
+    "crypto": "^1.0.1",
     "discord.js": "^14.15.2",
     "dotenv": "^16.4.7",
     "mysql2": "^3.13.0"

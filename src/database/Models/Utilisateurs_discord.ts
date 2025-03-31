@@ -52,9 +52,8 @@ export class UtilisateursDiscord implements I_Utilisateurs_discord {
 
     static async delete(discord_id: string) {
 
+        // Supprime l'utilisateur de la base de données
         try {
-            // Supprime le membre de la base de données
-
             // Vérifie si l'id discord est valide via un regex
             const regex = /^\d+$/;
             if (!regex.exec(discord_id)) {return}
