@@ -1,23 +1,9 @@
 {
-  "d5c6fee45ca3ae040ee2eefe20203d99a347cd50b74a1f4193fcce516f347693": {
+  "9ccde7dff9d02ee9e9a1dcbf125f02d5c994f13078c6063392a0aabe898c39c3": {
+    "session_id": "9ccde7dff9d02ee9e9a1dcbf125f02d5c994f13078c6063392a0aabe898c39c3",
     "discord_id": "383676607434457088",
     "channel_id": "1280939043944927336",
-    "join_date": "2025-03-31T21:13:37.037Z",
-    "session_id": "d5c6fee45ca3ae040ee2eefe20203d99a347cd50b74a1f4193fcce516f347693",
-    "leave_date": "2025-03-31T21:13:52.032Z"
-  },
-  "0f9faa1e07fd0a0c096997f368c3be598b02f245bb7d56962ce1ec412eb3f65c": {
-    "discord_id": "383676607434457088",
-    "channel_id": "1280939043944927336",
-    "join_date": "2025-03-31T21:15:50.631Z",
-    "session_id": "0f9faa1e07fd0a0c096997f368c3be598b02f245bb7d56962ce1ec412eb3f65c",
-    "leave_date": "2025-03-31T21:16:09.500Z"
-  },
-  "fb22d7f7558a5a5bf1c40ec8fbbd7400aeae76f495793457a3bec5c5c60935fc": {
-    "session_id": "fb22d7f7558a5a5bf1c40ec8fbbd7400aeae76f495793457a3bec5c5c60935fc",
-    "discord_id": "383676607434457088",
-    "channel_id": "1280939043944927336",
-    "join_date": "2025-03-31T21:22:44.813Z",
-    "leave_date": "2025-03-31T21:22:48.250Z"
+    "join_date": "2025-04-07T17:53:55.147Z",
+    "leave_date": "2025-04-07T17:53:58.050Z"
   }
 }

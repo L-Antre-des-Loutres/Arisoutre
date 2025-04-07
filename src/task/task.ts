@@ -1,8 +1,13 @@
 import { Client } from "discord.js"
 import { getAllMembers } from "../handlers/user/getAllMembers"
+import { VocalStats } from "../utils/localData/vocalStats"
 
 export async function task(client : Client, guildId : string) {
 
+    // Affichage du nombre d'heure de vocal total d'un utilisateur
+    VocalStats.getTotalVocalTime("383676607434457088").then((vocalTime) => {
+        console.log(vocalTime)
+    })
 
     // Lancement de la tâche périodique
     await getAllMembers(client, guildId)

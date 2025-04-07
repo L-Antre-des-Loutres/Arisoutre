@@ -7,3 +7,9 @@ export interface VocalStatsInterface {
     session_id: string
 
 }
+
+export interface MessageStatsInterface {
+    discord_id: string,
+    channel_id: string,
+    number_of_messages: number,
+}
