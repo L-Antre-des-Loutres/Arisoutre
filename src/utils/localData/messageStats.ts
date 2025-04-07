@@ -1,10 +1,11 @@
+import { join } from "path"
 import { MessageStatsInterface } from "./interface"
 import * as fs from "fs"
 
 // TODO : Try & Catch pour chaque fonction
 
-const messageStatsDir = "./localData/messageStats"
-const messageStatsFile = "./localData/messageStats/messageStats.json"
+const messageStatsDir = join(__dirname, "../../../localData/messageStats")
+const messageStatsFile = join(messageStatsDir, "messageStats.json")
 
 export class MessageStats implements MessageStatsInterface {
     discord_id: string
