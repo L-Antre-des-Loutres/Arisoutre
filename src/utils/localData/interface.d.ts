@@ -12,4 +12,5 @@ export interface MessageStatsInterface {
     discord_id: string,
     channel_id: string,
     number_of_messages: number,
+    date: string,
 }
