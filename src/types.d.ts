@@ -14,6 +14,7 @@ declare global {
             DB_HOST: string
             DB_USER: string
             DB_PASSWORD: string
+            DB_PORT?: string
             DB_NAME: string
             LOUTRE_ROLE: string
             GLOBAL_LOGS: string
