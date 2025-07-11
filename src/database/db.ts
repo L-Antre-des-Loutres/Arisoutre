@@ -27,7 +27,7 @@ export class Database {
     }
 
     // Méthode pour exécuter des requêtes génériques
-    async query(query: string) {
+    async query(query: string, deleteValues: unknown[]) {
         try {
             const [results, fields] = await this.pool.execute(query) 
             return { results, fields }
