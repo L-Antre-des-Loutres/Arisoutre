@@ -26,10 +26,10 @@ const event : BotEvent   = {
 
             const user = member.user.tag
 
-            welcomeChannel.send(`${user} a quitté notre antre... Il nage maintenant dans d'autres eaux. À bientôt, et prends soin de toi, loutre voyageuse ! 🦦🌊`)
+            await welcomeChannel.send(`${user} a quitté notre antre... Il nage maintenant dans d'autres eaux. À bientôt, et prends soin de toi, loutre voyageuse ! 🦦🌊`)
 
             // Supprime le membre de la base de données
-            UtilisateursDiscord.delete(member.id)
+            await UtilisateursDiscord.delete(member.id)
             logsMessage( "Suppression en base de données", `📋 Membre supprimé : ${member.user.tag}`, guild.client, "#fc0303")
 
         } catch (error) {

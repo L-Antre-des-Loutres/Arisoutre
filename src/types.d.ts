@@ -45,6 +45,9 @@ export interface I_Utilisateurs_discord {
     discord_id: string,
     pseudo_discord: string,
     join_date_discord: string,
+    first_activity: string,
+    last_activity: string,
+    nb_message: number,
 }
 
 export interface SlashCommand {

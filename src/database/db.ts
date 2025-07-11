@@ -27,7 +27,7 @@ export class Database {
     }
 
     // Méthode pour exécuter des requêtes génériques
-    async query(query: string, p0?: unknown[]) {
+    async query(query: string) {
         try {
             const [results, fields] = await this.pool.execute(query) 
             return { results, fields }
@@ -38,9 +38,14 @@ export class Database {
     }
 
     // Méthode pour effectuer une requête SELECT
-    async select(table: string, values: any[]) {
+    async select(table: string, where: Record<string, any>) {
         try {
-            const [results, fields] = await this.pool.execute(`SELECT * FROM ${table} WHERE ?`, values)
+            const keys = Object.keys(where)
+            const values = Object.values(where)
+            const whereClause = keys.map(key => `${key} = ?`).join(' AND ')
+            const sql = `SELECT * FROM ${table} WHERE ${whereClause}`
+
+            const [results, fields] = await this.pool.execute(sql, values)
             return { results, fields }
         } catch (error) {
             console.error("❌ Erreur lors de la sélection : ", error)

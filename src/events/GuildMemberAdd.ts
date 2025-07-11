@@ -37,7 +37,7 @@ const event: BotEvent = {
 
             // Envoie un message dans le salon de bienvenue
 
-            welcomeChannel.send(userPing + ` merci de lire, c'est important :`)
+            await welcomeChannel.send(userPing + ` merci de lire, c'est important :`)
 
             const embed = new EmbedBuilder()
                 .setAuthor({
@@ -48,13 +48,13 @@ const event: BotEvent = {
                 .setDescription("Ce serveur Discord est dédié aux jeux, donc les salons principalement utilisés sont <#1159113861593579612>, <#1288926594781413491>, <#1112784827649904732>, <#1218705208700305408>, et parfois <#1112790796119326812> pour les autres jeux.\n\nN'oublie pas que notre petite communauté nous permet toujours de maintenir une bonne ambiance, alors reste un peu avant de te faire un avis. :otter: \n\nOse lancer des discussions, tu verras que nous sommes présents !")
                 .setThumbnail("https://cdn.discordapp.com/attachments/640874969227722752/1173553276801781820/opt__aboutcom__coeus__resources__content_migration__mnn__images__2015__09__river-otters-lead-photo-86eef01e35714da9a6dd974f321e3504.jpg")
                 .setColor("#00b0f4")
-            welcomeChannel.send({ embeds: [embed] })
+            await welcomeChannel.send({embeds: [embed]})
 
             const pingMessage = welcomeChannel.send(`${rolePing} merci de bien l'accueillir et de l'orienter au nécessaire !`)
 
             // Ajoute un rôle au nouveau membre
             try {
-                member.roles.add(ID_roleLoutre)
+                await member.roles.add(ID_roleLoutre)
                 logsMessage(`Nouvel utilsateur : ${member.user.tag}`, `Ajout du rôle : ${roleLoutre}`, guild.client, "#0bde00")
             } catch (error) {
                 errorLogs(`Erreur lors de l'ajout du rôle : ${roleLoutre}`, `👤 tag : ${member.user.username} (ID: ${member.id}) \n ${error}`, guild.client)
@@ -63,7 +63,7 @@ const event: BotEvent = {
 
             // Enregistre le nouveau membre dans la base de données et envoie un message dans le salon de logs
             try {
-                UtilisateursDiscord.register(new UtilisateursDiscord(member.id, member.user.username, member.joinedAt?.toISOString().slice(0, 19).replace('T', ' ') ?? '0000-00-00 00:00:00'))
+                await UtilisateursDiscord.register(new UtilisateursDiscord(member.id, member.user.username, member.joinedAt?.toISOString().slice(0, 19).replace('T', ' ') ?? '0000-00-00 00:00:00'))
                 logsMessage("Enregistrement en base de données", `📋 Nouveau membre : ${member.user.tag}`, guild.client, "#0bde00")
 
             } catch (error) {
@@ -72,7 +72,7 @@ const event: BotEvent = {
 
             // Ajoute une réaction au message de bienvenue
             try {
-                (await pingMessage).react("👋")
+                await (await pingMessage).react("👋")
             } catch (error) {
                 console.error("❌ Erreur lors de l'ajout de la réaction :", error)
             }
