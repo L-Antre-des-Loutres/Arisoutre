@@ -63,7 +63,9 @@ const event: BotEvent = {
 
             // Enregistre le nouveau membre dans la base de données et envoie un message dans le salon de logs
             try {
-                await UtilisateursDiscord.register(new UtilisateursDiscord(member.id, member.user.displayName, member.user.username,   member.joinedAt?.toISOString().slice(0, 19).replace('T', ' ') ?? '0000-00-00 00:00:00'))
+                // Récupération correcte de l'URL de l'avatar
+                const avatarUrl = member.user.displayAvatarURL({ extension: 'png', size: 512 })
+                await UtilisateursDiscord.register(new UtilisateursDiscord(member.id, member.user.displayName, member.user.username,   member.joinedAt?.toISOString().slice(0, 19).replace('T', ' ') ?? '0000-00-00 00:00:00', avatarUrl) )
                 logsMessage("Enregistrement en base de données", `📋 Nouveau membre : ${member.user.tag}`, guild.client, "#0bde00")
 
             } catch (error) {
