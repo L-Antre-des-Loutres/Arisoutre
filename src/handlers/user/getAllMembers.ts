@@ -22,7 +22,7 @@ export async function getAllMembers(client: Client, guildId: string): Promise<vo
             const joinDate = member.joinedAt?.toISOString().slice(0, 19).replace('T', ' ') ?? '0000-00-00 00:00:00'
 
             // Enregistre le membre dans la base de données
-            UtilisateursDiscord.register(new UtilisateursDiscord(member.id, member.user.username, joinDate))
+            UtilisateursDiscord.register(new UtilisateursDiscord(member.id, member.user.displayName, member.user.username,  joinDate))
 
         })
         

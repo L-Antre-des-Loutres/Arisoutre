@@ -6,6 +6,9 @@ const db = new Database()
 // Interface représentant un utilisateur Discord dans ta base
 export interface UtilisateurDiscord {
     discord_id: string;
+    tag_discord: string;
+    pseudo_discord: string;
+    join_date_discord: string;
     first_activity: string | null;
     last_activity: string | null;
     nb_message: number;
@@ -19,15 +22,17 @@ export interface DbSelectResult<T> {
 
 export class UtilisateursDiscord implements I_Utilisateurs_discord {
     discord_id!: string
+    tag_discord!: string
     pseudo_discord!: string
     join_date_discord!: string
     last_activity!: string
     first_activity!: string
     nb_message!: number
 
-    constructor(discord_id: string, pseudo_discord: string, join_date_discord: string) {
+    constructor(discord_id: string, pseudo_discord: string, tag_discord: string, join_date_discord: string) {
         this.discord_id = discord_id
         this.pseudo_discord = pseudo_discord
+        this.tag_discord = tag_discord
         this.join_date_discord = join_date_discord
     }
 
