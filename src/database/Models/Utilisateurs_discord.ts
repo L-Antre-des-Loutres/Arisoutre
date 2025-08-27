@@ -12,6 +12,7 @@ export interface UtilisateurDiscord {
     first_activity: string | null;
     last_activity: string | null;
     nb_message: number;
+    vocal_time: number;
     avatar_url: string;
 }
 
@@ -113,6 +114,36 @@ export class UtilisateursDiscord implements I_Utilisateurs_discord {
             console.error("❌ Erreur dans registerLastActivity :", error);
         }
     }
+
+    // Ajoute le temps de vocal de l'utilisateur
+
+    static async addVocalTime(discord_id: string, vocalTime: number): Promise<void> {
+        try {
+            // On force ici le typage du résultat de db.select
+            const actualVocalTime = await db.select(
+                UtilisateursDiscord.getTableName(),
+                { discord_id }
+            ) as DbSelectResult<UtilisateurDiscord>;
+
+            if (actualVocalTime.results.length > 0) {
+                const user = actualVocalTime.results[0];
+                const vocalTimeToAdd = vocalTime + (user.vocal_time ?? 0);
+
+                const updateData: Partial<UtilisateurDiscord> = {
+                    vocal_time: vocalTimeToAdd,
+                };
+
+                await db.update(
+                    UtilisateursDiscord.getTableName(),
+                    updateData,
+                    `discord_id = '${discord_id}'`
+                );
+            } else {return}
+        } catch (error) {
+            console.error("❌ Erreur dans registerLastActivity :", error);
+        }
+    }
+
 }
 
 export default UtilisateursDiscord
