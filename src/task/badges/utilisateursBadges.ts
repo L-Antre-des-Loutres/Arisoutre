@@ -22,6 +22,7 @@ export type UserDataType = {
     first_activity: string;
     last_activity: string;
     nb_message: number;
+    vocal_time: number;
     tag_discord: string;
     avatar_url: string;
 };
@@ -34,6 +35,7 @@ export class UtilisateursBadges {
     firstActivity: string;
     lastActivity: string;
     nbMessage: number;
+    vocal_time: number;
     tag: string;
     avatarUrl: string;
 
@@ -45,6 +47,7 @@ export class UtilisateursBadges {
         this.firstActivity = user.first_activity;
         this.lastActivity = user.last_activity;
         this.nbMessage = user.nb_message;
+        this.vocal_time = user.vocal_time;
         this.tag = user.tag_discord;
         this.avatarUrl = user.avatar_url;
     }
@@ -99,7 +102,38 @@ export class UtilisateursBadges {
                     utilisateur_id: userData.id,
                     badge_id: 9, // badge 1000 messages
                     date_recu: new Date().toISOString().slice(0, 19).replace("T", " "),
-                }] : [])
+                }] : []),
+                // Badge pour avoir rejoint un vocal
+                ...(userData.vocal_time > 0 ? [{
+                    utilisateur_id: userData.id,
+                    badge_id: 15, // badge rejoint un vocal
+                    date_recu: new Date().toISOString().slice(0, 19).replace("T", " "),
+                }] : []),
+
+                // Badge pour être resté pendant 1h dans un vocal
+                ...(userData.vocal_time > 1 ? [{
+                    utilisateur_id: userData.id,
+                    badge_id: 16, // badge 1h
+                    date_recu: new Date().toISOString().slice(0, 19).replace("T", " "),
+                }] : []),
+                // Badge pour être resté pendant 10h dans un vocal
+                ...(userData.vocal_time > 10 ? [{
+                    utilisateur_id: userData.id,
+                    badge_id: 17, // badge 10h
+                    date_recu: new Date().toISOString().slice(0, 19).replace("T", " "),
+                }] : []),
+                // Badge pour être resté pendant 24h dans un vocal
+                ...(userData.vocal_time > 24 ? [{
+                    utilisateur_id: userData.id,
+                    badge_id: 18, // badge 24h
+                    date_recu: new Date().toISOString().slice(0, 19).replace("T", " "),
+                }] : []),
+                // Badge pour être resté pendant 100h dans un vocal
+                ...(userData.vocal_time > 100 ? [{
+                    utilisateur_id: userData.id,
+                    badge_id: 19, // badge 100h
+                    date_recu: new Date().toISOString().slice(0, 19).replace("T", " "),
+                }] : []),
             ];
 
 
