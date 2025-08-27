@@ -1,11 +1,16 @@
 import { Client } from "discord.js"
 import { getAllMembers } from "../handlers/user/getAllMembers"
+import {UtilisateursBadges} from "./badges/utilisateursBadges";
 
 export async function task(client : Client, guildId : string) {
 
 
     // Lancement de la tâche périodique
     await getAllMembers(client, guildId)
+
+    // Lancement de l'obtention des badges des utilisateurs
+    await UtilisateursBadges.init(client)
+
     setInterval(async () => {
         
         // Enregistrement des membres dans la base de données
