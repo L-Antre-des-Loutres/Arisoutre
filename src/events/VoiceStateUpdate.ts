@@ -19,8 +19,6 @@ async function saveVoiceTime(userId: string, deltaMs: number) {
     }
 }
 
-
-// Flush périodique toutes les 5 minutes
 // Flush périodique toutes les 5 minutes
 setInterval(async () => {
     try {
@@ -64,13 +62,18 @@ export default {
                 const joinTime = joinTimestamps.get(userId);
                 if (joinTime) {
                     const elapsed = Date.now() - joinTime;
+
+                    // On enregistre uniquement le delta depuis le dernier flush
+                    await saveVoiceTime(userId, elapsed);
+
+                    // Mise à jour en mémoire
                     voiceTimes.set(userId, (voiceTimes.get(userId) || 0) + elapsed);
                     joinTimestamps.delete(userId);
 
-                    eventLogger(`[LEAVE] ${userId} a quitté le canal vocal ${oldState.channel.id}, temps passé: ${elapsed}ms`, "voiceStateUpdate");
-
-                    // Sauvegarde immédiate en heures décimales
-                    await saveVoiceTime(userId, voiceTimes.get(userId)!);
+                    eventLogger(
+                        `[LEAVE] ${userId} a quitté le canal vocal ${oldState.channel.id}, temps passé depuis dernier flush: ${elapsed}ms`,
+                        "voiceStateUpdate"
+                    );
                 }
             }
 
@@ -83,9 +86,20 @@ export default {
                 const joinTime = joinTimestamps.get(userId);
                 if (joinTime) {
                     const elapsed = Date.now() - joinTime;
+
+                    // Sauvegarde uniquement du delta depuis le dernier flush
+                    await saveVoiceTime(userId, elapsed);
+
+                    // Mise à jour en mémoire
                     voiceTimes.set(userId, (voiceTimes.get(userId) || 0) + elapsed);
-                    eventLogger(`[MOVE] ${userId} a changé de canal ${oldState.channel.id} -> ${newState.channel.id}, temps précédent: ${elapsed}ms`, "voiceStateUpdate");
+
+                    eventLogger(
+                        `[MOVE] ${userId} a changé de canal ${oldState.channel.id} -> ${newState.channel.id}, temps passé depuis dernier flush: ${elapsed}ms`,
+                        "voiceStateUpdate"
+                    );
                 }
+
+                // Redémarrer le compteur à partir du nouveau canal
                 joinTimestamps.set(userId, Date.now());
             }
         } catch (err) {
