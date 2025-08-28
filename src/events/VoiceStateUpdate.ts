@@ -9,16 +9,18 @@ const voiceTimes: Map<string, number> = new Map();
 const joinTimestamps: Map<string, number> = new Map();
 
 // Fonction pour sauvegarder dans la DB en heures décimales
-async function saveVoiceTime(userId: string, totalMs: number) {
+async function saveVoiceTime(userId: string, deltaMs: number) {
     try {
-        const hoursDecimal = totalMs / 1000 / 60 / 60; // conversion en heures décimales
-        await Utilisateurs_discord.addVocalTime(userId, hoursDecimal);
-        eventLogger(`[SAVE] Temps vocal de ${userId} sauvegardé : ${hoursDecimal.toFixed(2)}h`, "voiceStateUpdate");
+        const hoursDelta = deltaMs / 1000 / 60 / 60;
+        await Utilisateurs_discord.addVocalTime(userId, hoursDelta);
+        eventLogger(`[SAVE] Temps vocal de ${userId} ajouté : +${hoursDelta.toFixed(2)}h`, "voiceStateUpdate");
     } catch (error) {
-       eventLogger("Erreur saveVoiceTime: " + error, "voiceStateUpdate");
+        eventLogger("Erreur saveVoiceTime: " + error, "voiceStateUpdate");
     }
 }
 
+
+// Flush périodique toutes les 5 minutes
 // Flush périodique toutes les 5 minutes
 setInterval(async () => {
     try {
@@ -26,19 +28,22 @@ setInterval(async () => {
 
         for (const [userId, joinTime] of joinTimestamps.entries()) {
             const elapsed = now - joinTime;
-            const total = (voiceTimes.get(userId) || 0) + elapsed;
 
-            await saveVoiceTime(userId, total);
+            // Sauvegarder uniquement le delta (pas le total)
+            await saveVoiceTime(userId, elapsed);
 
             // Mettre à jour les maps
             joinTimestamps.set(userId, now);
-            voiceTimes.set(userId, total);
+            voiceTimes.set(userId, (voiceTimes.get(userId) || 0) + elapsed);
 
-            eventLogger(`[FLUSH] Mise à jour de l'utilisateur ${userId} : ${total}ms`, "voiceStateUpdate");
+            eventLogger(
+                `[FLUSH] Mise à jour de l'utilisateur ${userId} : +${elapsed}ms (total local: ${voiceTimes.get(userId)}ms)`,
+                "voiceStateUpdate"
+            );
         }
 
     } catch (err) {
-        eventLogger("Erreur sur le flush périodique: " + err, "voiceStateUpdate")
+        eventLogger("Erreur sur le flush périodique: " + err, "voiceStateUpdate");
     }
 }, 5 * 60 * 1000);
 
