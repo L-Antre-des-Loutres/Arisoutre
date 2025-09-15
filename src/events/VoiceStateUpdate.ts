@@ -2,6 +2,7 @@ import {Client, Events, VoiceState} from "discord.js";
 import { errorLogs } from "../utils/message/logs/errorLogs";
 import Utilisateurs_discord from "../database/Models/Utilisateurs_discord";
 import {eventLogger} from "./logs/EventLogger";
+import UtilisateursDiscord from "../database/Models/Utilisateurs_discord";
 
 // Map pour stocker le temps cumulé en ms
 const voiceTimes: Map<string, number> = new Map();
@@ -51,6 +52,10 @@ export default {
         const userId = newState.id;
 
         try {
+            const author = oldState.member?.id || newState.member?.id || "";
+
+            await UtilisateursDiscord.registerLastActivity(author)
+
             // Entrée dans un canal vocal
             if (!oldState.channel && newState.channel) {
                 joinTimestamps.set(userId, Date.now());
