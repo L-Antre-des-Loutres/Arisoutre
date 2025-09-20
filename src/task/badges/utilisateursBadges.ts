@@ -156,4 +156,13 @@ export class UtilisateursBadges {
         )
     }
 
+    static async badgeLoutreAssure(user : number) : Promise<void> {
+        const badgeLoutreAssure : BadgeType = {
+            badge_id: 20,
+            date_recu: new Date().toISOString().slice(0, 19).replace("T", " ") ,
+            utilisateur_id: user
+        }
+        await Badges.donBadge(badgeLoutreAssure)
+    }
+
 }
