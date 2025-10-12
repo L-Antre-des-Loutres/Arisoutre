@@ -9,19 +9,13 @@ export function embedModeration(title: string, message: string, color: ColorReso
         .setTimestamp()
 }
 
-// Collection pour stocker les messages récents par utilisateur
-const messageRate = new Collection<string, { count: number; last: number }>();
-
-// Paramètres du système anti-spam / raid
-const LIMIT = 6; // Nombre de messages maximum avant sanction
-const TIME_WINDOW = 7000; // Temps en millisecondes avant reset du compteur
-const TIMEOUT_DURATION = 10 * 60 * 1000; // 10 minutes de timeout
+const userMessages = new Map<string, number[]>();
 
 export default {
     name: Events.MessageCreate,
     async execute(message: Message) {
         try {
-            if (message.author.bot) return
+            if (message.author.bot) return; // Ignorer les bots
 
             // Convertir le contenu du message en minuscules
             const messageContent = message.content.toLowerCase()
@@ -61,54 +55,75 @@ export default {
                 }
             }
 
-            // ---------------- Système anti-spam / raid ----------------
-            const now = Date.now();
-            const userData = messageRate.get(author) || { count: 0, last: now };
+            // ---------------- Anti-raid ----------------
+            const spamConfig = {
+                maxMessages: 5,     // Nombre de messages max
+                interval: 10000,    // Intervalle en ms (10 secondes)
+                muteTime: 60000     // Durée du mute en ms (1 minute)
+            };
 
-            // Réinitialise le compteur si le dernier message est ancien
-            if (now - userData.last > TIME_WINDOW) {
-                userData.count = 0;
+            // Map globale pour stocker les messages des utilisateurs
+            const userMessages = new Map<string, number[]>();
+
+            const now = Date.now();
+            const authorId = message.author.id;
+
+            if (!userMessages.has(authorId)) {
+                userMessages.set(authorId, []);
             }
 
-            userData.count++;
-            userData.last = now;
-            messageRate.set(author, userData);
+            let authorMessages = userMessages.get(authorId)!;
 
-            // Si trop de messages envoyés trop rapidement
-            if (userData.count >= LIMIT) {
+            // Filtrer les messages trop vieux
+            authorMessages = authorMessages.filter(ts => now - ts <= spamConfig.interval);
+
+            // Ajouter le message actuel
+            authorMessages.push(now);
+            userMessages.set(authorId, authorMessages);
+
+            // Vérifier le spam
+            if (authorMessages.length > spamConfig.maxMessages) {
+                const channel = message.channel as TextChannel;
+
+                // Réinitialiser immédiatement pour éviter plusieurs triggers
+                userMessages.delete(authorId);
+
+                // Timeout l'utilisateur
+                await message.member?.timeout(spamConfig.muteTime, "Spam détecté");
+
+                // Supprimer tous les messages récents de l'utilisateur dans le salon
                 try {
-                    await message.member?.timeout(TIMEOUT_DURATION, "Spam détecté (système anti-raid)");
-                    await message.delete();
-
-                    const channelUser = message.channel as TextChannel;
-                    await channelUser.send({
-                        embeds: [
-                            embedModeration(
-                                "Système Anti-Raid",
-                                `${authorUsername} a été temporairement mute pour spam excessif.`
-                            )
-                        ]
-                    });
-
-                    const logChannel = message.guild?.channels.cache.find(
-                        (ch) => ch.id === "1112707644512288791" && ch instanceof TextChannel
-                    ) as TextChannel | undefined;
-
-                    if (logChannel?.isTextBased()) {
-                        logChannel.send({
-                            embeds: [
-                                embedModeration(
-                                    "Modération - Anti-Raid",
-                                    `⚠️ **${authorUsername}** (\`${author}\`) a été mute pendant 10 minutes pour spam (trop de messages envoyés en peu de temps).`
-                                )
-                            ]
-                        });
+                    let hasMore = true;
+                    while (hasMore) {
+                        const fetchedMessages = await channel.messages.fetch({ limit: 100 });
+                        const messagesToDelete = fetchedMessages.filter(m => m.author.id === authorId);
+                        if (messagesToDelete.size > 0) {
+                            await channel.bulkDelete(messagesToDelete, true);
+                        } else {
+                            hasMore = false;
+                        }
                     }
-
-                    // Réinitialise le compteur après sanction
-                    messageRate.delete(author);
                 } catch (err) {
-                    console.error("Erreur lors de la gestion du spam :", err);
+                    console.error("Impossible de supprimer les messages spam :", err);
+                }
+
+                // Envoyer **une seule notification** dans le salon
+                await channel.send({
+                    embeds: [embedModeration(
+                        "Anti-spam",
+                        `${message.author.username}, vous envoyez trop de messages rapidement. Vous avez été timeout pendant 1 minute.`
+                    )]
+                });
+
+                // Envoyer dans le salon de modération
+                const modChannel = message.guild?.channels.cache.get("1112707644512288791") as TextChannel | undefined;
+                if (modChannel?.isTextBased()) {
+                    modChannel.send({
+                        embeds: [embedModeration(
+                            "Modération - Anti-spam",
+                            `Spam détecté de ${message.author.username} (${authorId}) dans le salon <#${channel.id}>.\nL'utilisateur a été timeout pendant 1 minute.`
+                        )]
+                    });
                 }
             }
 
