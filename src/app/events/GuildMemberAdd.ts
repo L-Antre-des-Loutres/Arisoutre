@@ -4,6 +4,7 @@ import {embed_guildMemberAddError, embed_guildMemberAddSuccess} from "../embeds/
 import {welcomeEmbed} from "../embeds/events/guildMemberAdd/welcomeEmbed";
 import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
+import {analyzeEmbed} from "../embeds/events/utils/analyzeEmbed";
 
 module.exports = {
     name: Events.GuildMemberAdd,
@@ -38,7 +39,7 @@ module.exports = {
 
             const pingMessage = await welcomeChannel.send(`${rolePing} merci de bien l'accueillir et de l'orienter au nécessaire !`);
 
-            // Ajout du rôle et enregistrement BDD en parallèle
+            // Ajout du rôle, enregistrement BDD en parallèle et envoie d'un message aux modérateurs
             await Promise.all([
                 (async () => {
                     try {
@@ -70,7 +71,7 @@ module.exports = {
                         const channel = guild.channels.cache.get(channelModeratorId) as TextChannel ||
                             await guild.channels.fetch(channelModeratorId) as TextChannel;
                         if (channel) {
-                            await channel.send(`${userPing} a rejoint le serveur !`);
+                            await channel.send({embeds: [await analyzeEmbed(member)]});
                         }
                     } catch (error) {
                         otterlogs.error("Error while notifying moderators: " + error);
