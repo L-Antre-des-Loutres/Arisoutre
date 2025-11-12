@@ -28,9 +28,8 @@ export function analyzeMember(member: GuildMember): {
     const notes: string[] = [];
 
     // ----------------------------
-    // ⚙️ 1. Analyse de base
+    // 1. Analyse de base
     // ----------------------------
-
     if (user.bot) {
         score -= 25;
         notes.push("Le compte est un bot.");
@@ -67,9 +66,8 @@ export function analyzeMember(member: GuildMember): {
 
 
     // ----------------------------
-    // 🧠 2. Analyse avancée (inactive pour nouveaux membres)
+    // 2. Analyse avancée (inactive pour nouveaux membres)
     // ----------------------------
-
     const eligibleForAdvanced = joinAgeDays >= 3; // Analyse complète après 3 jours de présence
 
     if (eligibleForAdvanced) {
@@ -90,11 +88,7 @@ export function analyzeMember(member: GuildMember): {
             score += 10;
         }
 
-        // Nom d’utilisateur suspect
-        if (/https?:\/\//i.test(user.username)) {
-            score -= 25;
-            notes.push("Nom d’utilisateur contenant un lien suspect.");
-        } else if (/^user\d{4}$/i.test(user.username)) {
+        if (/^user\d{4}$/i.test(user.username)) {
             score -= 10;
             notes.push("Nom d’utilisateur générique détecté.");
         }
@@ -103,7 +97,6 @@ export function analyzeMember(member: GuildMember): {
     // ----------------------------
     // 🧾 3. Résultat final
     // ----------------------------
-
     if (score > 100) score = 100;
     if (score < 0) score = 0;
 
