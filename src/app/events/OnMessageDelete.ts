@@ -11,9 +11,7 @@ module.exports = {
     async execute(message: Message) {
         if (!message.author || message.author.bot) return;
 
-        const {
-            channels: { log_message: logMessageChannelID },
-        } = channels;
+        const {channels: { log_message: logMessageChannelID },} = channels;
         const guild = message.guild;
         if (!guild) return;
 
@@ -26,8 +24,8 @@ module.exports = {
                 otterlogs.error("Unable to retrieve log message channel");
                 return;
             }
-            await new Promise(r => setTimeout(r, 1500));
 
+            await new Promise(r => setTimeout(r, 1500));
             // Récupération des logs d'audit
             const fetchedLogs = await guild.fetchAuditLogs({
                 limit: 1,

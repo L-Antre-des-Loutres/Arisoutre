@@ -11,7 +11,7 @@ export async function embed_onMessageDelete(message: Message, executor: {usernam
         })
         .setDescription(`**Canal :** ${message.channel}\n**Contenu :**\n\`\`\`${content}\`\`\``)
         .setColor("#f50000")
-        .setFooter({ text: "Arisoutre" })
+        .setFooter({ text: process.env.BOT_NAME })
         .setThumbnail(executor.pdp)
         .setTimestamp();
 }
