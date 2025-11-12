@@ -17,5 +17,5 @@ export async function embed_welcome(member: GuildMember): Promise<EmbedBuilder> 
         )
         .setThumbnail(member.user.displayAvatarURL({ extension: "png", size: 512 }))
         .setColor("#00b0f4")
-        .setFooter({ text: "antredesloutres.fr" });
+        .setFooter({ text: `antredesloutres.fr - ${process.env.BOT_NAME}` });
 }

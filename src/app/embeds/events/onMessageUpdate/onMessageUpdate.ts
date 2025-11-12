@@ -21,7 +21,7 @@ export function embed_onMessageUpdate(oldMessage: Message, updatedMessage: Messa
         )
         .setColor("#ffae00")
         .setThumbnail(oldMessage.author.displayAvatarURL())
-        .setFooter({ text: "Arisoutre" })
+        .setFooter({ text: process.env.BOT_NAME })
         .setTimestamp();
 
 }
