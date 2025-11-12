@@ -1,34 +1,44 @@
 import {EmbedBuilder} from "discord.js";
 import {UtilisateursDiscordType} from "../../../types/UtilisateursDiscordType";
 
-export async function embed_guildMemberRemove(utilisateursDiscord: UtilisateursDiscordType | undefined): Promise<EmbedBuilder> {
+export async function embed_guildMemberRemove(
+    utilisateursDiscord?: UtilisateursDiscordType
+): Promise<EmbedBuilder> {
+    const pseudo = utilisateursDiscord?.pseudo_discord ?? "Loutre disparue";
+    const avatar = utilisateursDiscord?.avatar_url ?? null;
+    const joinDate = utilisateursDiscord?.join_date_discord
+        ? `<t:${Math.floor(new Date(utilisateursDiscord.join_date_discord).getTime() / 1000)}:R>`
+        : "Date inconnue";
+
     return new EmbedBuilder()
-        .setColor(0x5865F2)
+        .setColor(0x5865f2)
         .setAuthor({
             name: utilisateursDiscord?.pseudo_discord ?? "Loutre disparue",
-            iconURL: utilisateursDiscord?.avatar_url ?? undefined
+            iconURL: utilisateursDiscord?.avatar_url ?? ""
         })
-        .setTitle("🐾 Une loutre quitte l’antre...")
+        .setTitle("Une loutre quitte l’antre...")
         .setDescription([
-            `${user ?? "Un membre"} a quitté notre clan...`,
+            `${pseudo} a quitté notre clan...`,
             "Portée par le courant, elle nage désormais vers d’autres eaux. 🌊",
-            "",
-            "Souhaitons-lui bon vent — même si la trahison pique un peu... 🦦💔"
         ].join("\n"))
         .addFields(
             {
                 name: "📅 Rejoint le serveur",
-                value: member?.joinedTimestamp
-                    ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:R>`
-                    : "Date inconnue"
+                value: joinDate,
+                inline: false
             },
             {
-                name: "🪪 Identifiant",
-                value: user?.id ?? "Inconnu",
+                name: "📝 Nombre de messages",
+                value: utilisateursDiscord?.nb_message?.toString() ?? "0",
+                inline: true
+            },
+            {
+                name: "🎤 Temps en vocal",
+                value: utilisateursDiscord?.vocal_time?.toString() ?? "0",
                 inline: true
             }
         )
-        .setThumbnail(user?.displayAvatarURL() ?? undefined)
+        .setThumbnail(avatar)
         .setFooter({ text: "L’antre se souviendra de toi..." })
         .setTimestamp();
 }
