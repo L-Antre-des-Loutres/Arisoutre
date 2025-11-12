@@ -1,7 +1,8 @@
 import {
     ChatInputCommandInteraction,
     SlashCommandBuilder,
-    GuildMember
+    GuildMember,
+    InteractionContextType
 } from "discord.js";
 import {embed_analyze} from "../embeds/events/utils/analyzeEmbed";
 
@@ -9,8 +10,9 @@ export default {
     data: new SlashCommandBuilder()
         .setName("analyze")
         .setDescription("Analyse le score de fiabilité d'un membre du serveur.")
-        // .setDefaultMemberPermissions(0) // ou 0 si réservé à l’admin
-        .addUserOption(option =>
+        .setDefaultMemberPermissions(0)
+        .setContexts(InteractionContextType.Guild)
+    .addUserOption(option =>
             option
                 .setName("membre")
                 .setDescription("Le membre à analyser")
@@ -23,7 +25,7 @@ export default {
         if (!member) {
             await interaction.reply({
                 content: "Impossible de trouver ce membre sur le serveur.",
-                ephemeral: true
+                flags: "Ephemeral"
             });
             return;
         }

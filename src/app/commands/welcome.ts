@@ -1,7 +1,7 @@
 import {
     ChatInputCommandInteraction,
     SlashCommandBuilder,
-    GuildMember
+    GuildMember, InteractionContextType
 } from "discord.js";
 import {embed_welcome} from "../embeds/events/guildMemberAdd/welcomeEmbed";
 
@@ -9,7 +9,8 @@ export default {
     data: new SlashCommandBuilder()
         .setName("welcome")
         .setDescription("Permet de tester l'embed de bienvenue")
-        // .setDefaultMemberPermissions(0) // ou 0 si réservé à l’admin
+        .setDefaultMemberPermissions(0)
+        .setContexts(InteractionContextType.Guild)
         .addUserOption(option =>
             option
                 .setName("membre")
@@ -23,7 +24,7 @@ export default {
         if (!member) {
             await interaction.reply({
                 content: "Impossible de trouver ce membre sur le serveur.",
-                ephemeral: true
+                flags: "Ephemeral"
             });
             return;
         }
