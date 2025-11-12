@@ -67,9 +67,8 @@ module.exports = {
                     try {
                         const channel = guild.channels.cache.get(channelModeratorId) as TextChannel ||
                             await guild.channels.fetch(channelModeratorId) as TextChannel;
-                        if (channel) {
-                            await channel.send({embeds: [await embed_analyze(member)]});
-                        }
+                        if (!channel) return;
+                        await channel.send({embeds: [await embed_analyze(member)]});
                     } catch (error) {
                         otterlogs.error("Error while notifying moderators: " + error);
                     }
