@@ -1,7 +1,7 @@
 {
-  "name": "otterbots",
-  "version": "1.0.0",
-  "description": "Un framework pour les bots discord de l'antre des loutres",
+  "name": "arisoutre",
+  "version": "3.0.0",
+  "description": "Bot de modération discord de l'antre des loutres",
   "homepage": "https://github.com/L-Antre-des-Loutres/Otterbots#readme",
   "bugs": {
     "url": "https://github.com/L-Antre-des-Loutres/Otterbots/issues"
