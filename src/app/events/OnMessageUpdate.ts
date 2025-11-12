@@ -7,6 +7,7 @@ module.exports = {
     name: Events.MessageUpdate,
     async execute(oldMessage: Message, newMessage: Message) {
         try {
+            // Vérification des conditions pour l'envoi de l'embed
             if (!oldMessage.author || oldMessage.author.bot || oldMessage.content === newMessage.content ||
                 !(oldMessage.channel instanceof TextChannel)) return;
 
@@ -14,14 +15,15 @@ module.exports = {
             const guild = oldMessage.guild;
             if (!guild) return;
 
+            // Salon de log
             const logMessageChannel = (guild.channels.cache.get(logMessageChannelID) as TextChannel) ||
                 await guild.channels.fetch(logMessageChannelID) as TextChannel;
-
             if (!logMessageChannel) {
                 otterlogs.error("Unable to retrieve log message channel");
                 return;
             }
 
+            // Envoi de l'embed avec les informations de l'ancienne et de la nouvelle message
             await logMessageChannel.send({embeds: [embed_onMessageUpdate(oldMessage, newMessage)]})
                 .catch(error => otterlogs.error(`Impossible d'envoyer le message : ${error}`));
         } catch (error) {

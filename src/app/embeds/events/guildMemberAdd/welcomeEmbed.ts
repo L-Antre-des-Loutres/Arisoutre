@@ -1,6 +1,13 @@
 import {EmbedBuilder, GuildMember} from "discord.js";
 
+/**
+ * Creates and returns an embedded welcome message for a new guild member.
+ *
+ * @param {GuildMember} member - The new member who has joined the guild. This provides information about the user.
+ * @return {Promise<EmbedBuilder>} A Promise that resolves to an EmbedBuilder containing the constructed welcome message.
+ */
 export async function embed_welcome(member: GuildMember): Promise<EmbedBuilder> {
+    // Construction de l'embed
     return new EmbedBuilder()
         .setAuthor({
             name: `Bienvenue sur L'antre des Loutres ! 🦦`
