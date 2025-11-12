@@ -1,9 +1,9 @@
 import {Events, GuildMember, roleMention, TextChannel, userMention} from "discord.js";
 import guilds from "../config.json";
-import {embed_guildMemberAddError, embed_guildMemberAddSuccess} from "../embeds/events/guildMemberAdd/guildMemberAdd";
-import {welcomeEmbed} from "../embeds/events/guildMemberAdd/welcomeEmbed";
 import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
+import {embed_analyze} from "../embeds/events/utils/analyzeEmbed";
+import {embed_welcome} from "../embeds/events/guildMemberAdd/welcomeEmbed";
 
 module.exports = {
     name: Events.GuildMemberAdd,
@@ -33,19 +33,17 @@ module.exports = {
 
             await Promise.all([
                 welcomeChannel.send(`${userPing} merci de lire, c'est important :`),
-                welcomeChannel.send({embeds: [await welcomeEmbed()]})
+                welcomeChannel.send({embeds: [await embed_welcome(member)]})
             ]);
 
             const pingMessage = await welcomeChannel.send(`${rolePing} merci de bien l'accueillir et de l'orienter au nécessaire !`);
 
-            // Ajout du rôle et enregistrement BDD en parallèle
+            // Ajout du rôle, enregistrement BDD en parallèle et envoie d'un message aux modérateurs
             await Promise.all([
                 (async () => {
                     try {
                         await member.roles.add(roleLoutreID);
-                        await embed_guildMemberAddSuccess(member);
                     } catch (error) {
-                        await embed_guildMemberAddError(member);
                         otterlogs.error("Error while adding role:" + error);
                     }
                 })(),
@@ -70,7 +68,7 @@ module.exports = {
                         const channel = guild.channels.cache.get(channelModeratorId) as TextChannel ||
                             await guild.channels.fetch(channelModeratorId) as TextChannel;
                         if (channel) {
-                            await channel.send(`${userPing} a rejoint le serveur !`);
+                            await channel.send({embeds: [await embed_analyze(member)]});
                         }
                     } catch (error) {
                         otterlogs.error("Error while notifying moderators: " + error);
