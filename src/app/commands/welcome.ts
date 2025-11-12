@@ -3,12 +3,12 @@ import {
     SlashCommandBuilder,
     GuildMember
 } from "discord.js";
-import {embed_analyze} from "../embeds/events/utils/analyzeEmbed";
+import {embed_welcome} from "../embeds/events/guildMemberAdd/welcomeEmbed";
 
 export default {
     data: new SlashCommandBuilder()
-        .setName("analyze")
-        .setDescription("Analyse le score de fiabilité d'un membre du serveur.")
+        .setName("welcome")
+        .setDescription("Permet de tester l'embed de bienvenue")
         // .setDefaultMemberPermissions(0) // ou 0 si réservé à l’admin
         .addUserOption(option =>
             option
@@ -31,7 +31,7 @@ export default {
         await interaction.deferReply(); // pour gérer les analyses un peu longues
 
         // Création de l’embed basé sur les données
-        const embed = await embed_analyze(member);
+        const embed = await embed_welcome(member);
 
         await interaction.editReply({ embeds: [embed] });
     }

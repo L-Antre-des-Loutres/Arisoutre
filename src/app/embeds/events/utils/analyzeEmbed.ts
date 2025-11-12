@@ -4,7 +4,7 @@ import {analyzeMember} from "../../../utils/moderation/analyzeMember";
 /**
  * Génère un embed de modération en se basant sur les données d’analyse.
  */
-export async function analyzeEmbed(member: GuildMember): Promise<EmbedBuilder> {
+export async function embed_analyze(member: GuildMember): Promise<EmbedBuilder> {
     const user = member.user;
     const { score, verdict, color, notes } = analyzeMember(member);
 
