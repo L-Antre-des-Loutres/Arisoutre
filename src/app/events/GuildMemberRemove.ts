@@ -1,6 +1,6 @@
 import {GuildMember, Events, TextChannel} from "discord.js";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
-import guilds from "../config.json";
+import guilds from "../config/channels.json";
 import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
 import {UtilisateursDiscordType} from "../types/UtilisateursDiscordType";
 import {embed_guildMemberRemove} from "../embeds/events/guildMemberRemove/guildMemberRemove";
