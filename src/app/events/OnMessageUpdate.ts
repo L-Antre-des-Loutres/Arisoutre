@@ -1,6 +1,6 @@
 import {Events, Message, TextChannel} from "discord.js"
 import {otterlogs} from "../../otterbots/utils/otterlogs";
-import channels from "../../../build/channelsConfig.json";
+import channels from "../../../config/channelsConfig.json";
 import {embed_onMessageUpdate} from "../embeds/events/onMessageUpdate/onMessageUpdate";
 
 module.exports = {
