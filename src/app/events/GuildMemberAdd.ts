@@ -1,5 +1,5 @@
 import {Events, GuildMember, roleMention, TextChannel, userMention} from "discord.js";
-import guilds from "../config/channels.json";
+import guilds from "../../../build/channelsConfig.json";
 import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
 import {embed_analyze} from "../embeds/events/utils/analyzeEmbed";
