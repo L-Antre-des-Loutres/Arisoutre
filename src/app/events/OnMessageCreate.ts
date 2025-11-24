@@ -6,6 +6,9 @@ module.exports = {
     name: Events.MessageCreate,
     async execute(message: Message) {
         try {
+            // On ne compte pas les messages des bots
+            if (message.author.bot) return;
+
             const authorId = message.author.id;
 
             // Récupérer l'ancien compteur ou 0

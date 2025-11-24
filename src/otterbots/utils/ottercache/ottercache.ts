@@ -14,6 +14,11 @@ export class OtterCache<T> {
     private autosaveDelay = 60 * 1000; // 1 minute
 
     constructor(fileName = "cache.json") {
+        // Ensure the fileName ends with .json
+        if (!fileName.endsWith('.json')) {
+            fileName = `${fileName}.json`;
+        }
+
         // Créer le dossier cache s'il n'existe pas
         const cacheDir = path.resolve(process.cwd(), 'cache');
         if (!fs.existsSync(cacheDir)) {
@@ -53,6 +58,15 @@ export class OtterCache<T> {
     get(key: string): T | null {
         const item = this.data.get(key);
         return item ? item.value : null;
+    }
+
+    /**
+     * Retrieves all the data stored in the instance.
+     *
+     * @return {Array|Object} The full collection of data stored in the instance.
+     */
+    getAll() {
+        return this.data;
     }
 
     /**

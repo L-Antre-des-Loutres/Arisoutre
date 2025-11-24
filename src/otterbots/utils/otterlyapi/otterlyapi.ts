@@ -183,4 +183,51 @@ export class Otterlyapi {
         }
 
     }
+
+    public static async putDataByAlias<T>(alias: string, data: T): Promise<T | undefined> {
+        // Check if the alias is valid
+        if (!alias) {
+            otterlogs.error('Invalid alias provided for fetching data');
+            return undefined;
+        }
+
+        // Fetch the route information from the JSON file
+        const routeInfo = Otterlyapi.getRoutesInfosByAlias(alias);
+        if (!routeInfo) {
+            otterlogs.error(`No route found for alias: ${alias}`);
+            return undefined;
+        }
+
+        // Check if API token is available
+        if (!process.env.API_TOKEN) {
+            otterlogs.error('API token is not configured');
+            return undefined;
+        }
+
+        // Perform the HTTP PUT request to update the data
+        try {
+            const response = await axios.put(routeInfo.route, data, {
+                headers: {
+                    Authorization: `${process.env.API_TOKEN}`
+                },
+                validateStatus: (status) => status >= 200 && status < 300
+            });
+
+            console.log(response.data)
+
+            if (!response.data || !response.data.data && !response.data.success) {
+                otterlogs.error(`Invalid response data structure for alias ${alias}`);
+                return undefined;
+            }
+
+            return response.data.data as T;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                otterlogs.error(`HTTP error for alias ${alias}: ${error.message}${error.response?.data ? ` - ${JSON.stringify(error.response.data)}` : ''}`);
+            } else {
+                otterlogs.error(`Unexpected error for alias ${alias}: ${error}`);
+            }
+            return undefined;
+        }
+    }
 }
