@@ -213,8 +213,6 @@ export class Otterlyapi {
                 validateStatus: (status) => status >= 200 && status < 300
             });
 
-            console.log(response.data)
-
             if (!response.data || !response.data.data && !response.data.success) {
                 otterlogs.error(`Invalid response data structure for alias ${alias}`);
                 return undefined;
