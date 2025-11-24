@@ -4,6 +4,9 @@
 # production
 /build
 
+# cache
+/cache
+
 .env
 
 .idea
