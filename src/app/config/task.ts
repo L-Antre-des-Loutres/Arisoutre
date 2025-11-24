@@ -34,7 +34,7 @@
  * - `task`: An asynchronous function to be executed at the specified time.
  */
 export const tasks = [
-    {name: "hello world", time: "43 13 * * *", task: async () => test(), period: ""}
+    {name: "Register Cache on BDD", time: "0 4 * * *", task: async () => test(), period: ""}
 ];
 
 
