@@ -14,6 +14,7 @@ module.exports = {
 
         try {
 
+            // On ne fait rien si le membre est un bot
             if (member.user.bot) return
 
             const {
