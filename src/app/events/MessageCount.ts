@@ -1,6 +1,7 @@
 import {Events, Message} from "discord.js"
 import {otterlogs} from "../../otterbots/utils/otterlogs";
 import {lastActivityCache, nbMessageCache} from "../config/cache";
+import {hasNoDataRole} from "../utils/no_data";
 
 module.exports = {
     name: Events.MessageCreate,
@@ -11,6 +12,12 @@ module.exports = {
 
             // On vérifie que les messages proviennent de la guilde
             if (!message.guild) return;
+
+            // On récupére le membre
+            const member = message.member ?? await message.guild.members.fetch(message.author.id);
+
+            // On vérifie que l'utilisateur n'as pas le rôle no_data avant de l'enregistrer en BDD
+            if (await hasNoDataRole(member)) return;
 
             const authorId = message.author.id;
 
