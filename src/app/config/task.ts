@@ -26,6 +26,9 @@
 //      expression = "* * * * *"
 
 
+import {cacheRegister} from "../tasks/cacheRegister";
+import {registerAllMember} from "../tasks/registerAllMember";
+
 /**
  * Represents a list of scheduled tasks with their respective configurations.
  * Each task contains the following details:
@@ -34,12 +37,14 @@
  * - `task`: An asynchronous function to be executed at the specified time.
  */
 export const tasks = [
-    {name: "Register Cache on BDD", time: "0 4 * * *", task: async () => test(), period: ""}
+    {name: "Register Cache on BDD", time: "0 4 * * *", task: async () => cacheRegister(), period: ""},
+    {name: "Register All discord members ", time: "0 4 * * *", task: async () => registerAllMember(), period:""}
 ];
 
-
-// Function to be executed at the scheduled time you can change it
-function test() {}
+export function taskOnStart() {
+    cacheRegister();
+    registerAllMember();
+}
 
 
 

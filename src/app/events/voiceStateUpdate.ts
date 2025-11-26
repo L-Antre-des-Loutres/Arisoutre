@@ -1,6 +1,7 @@
 import {Client, Events, VoiceState} from "discord.js";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
 import {lastActivityCache, nbMessageCache, vocalTimeCache} from "../config/cache";
+import {hasNoDataRole} from "../utils/no_data";
 
 // Map pour stocker le temps cumulé en ms
 const voiceTimes: Map<string, number> = new Map();
@@ -47,8 +48,15 @@ module.exports = {
         const userId = newState.id;
 
         try {
+            // On récupère le membre disponible
+            const member = newState.member ?? oldState.member;
+            if (!member) return;
+
             // On ne compte pas les bots
             if (newState.member?.user.bot) return;
+
+            // On vérifie que l'utilisateur n'as pas le rôle no_data avant de l'enregistrer en BDD
+            if (await hasNoDataRole(member)) return;
 
             // Mise à jour de la dernière activité
             lastActivityCache.set(userId, Date.now())

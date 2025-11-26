@@ -16,7 +16,7 @@ if (process.env.NODE_ENV == "dev") {
 }
 
 /**
- * Function to add a type field to the log object if the environment is set to development.
+ * Function to add a types field to the log object if the environment is set to development.
  * @param type
  */
 function typeLogger(type: string): { type?: string } {
@@ -87,10 +87,10 @@ export const otterlogs = {
 };
 
 /**
- * Sends a log message to Discord using webhooks based on the message type
+ * Sends a log message to Discord using webhooks based on the message types
  * @param message The message content to send
  * @param error Whether to use the error webhook URL instead of the global one
- * @param type The type of log message (success, log, warn, error, important)
+ * @param type The types of log message (success, log, warn, error, important)
  */
 function sendLogMessage(message: string, error: boolean, type?: string): void {
     if (process.env.ENABLE_DISCORD_SUCCESS === "false" && type === "success") return;

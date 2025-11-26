@@ -15,3 +15,21 @@ export function otterguard_Embed(title: string, messageContent: string): EmbedBu
         .setTimestamp()
         .setFooter({text: 'Otterguard'})
 }
+
+/**
+ * Creates and returns a formatted EmbedBuilder instance for moderation purposes.
+ *
+ * @param {string} title - The title to be displayed in the embed, prepended with "Otterguard: ".
+ * @param {string} reason - The reason for the moderation action, displayed in the embed's description.'
+ * @param {string} messageContent - The main content or description to appear in the embed.
+ * @return {EmbedBuilder} A configured EmbedBuilder instance with the specified title, description, timestamp, and footer.
+ */
+export function otterguard_EmbedModeration(title: string, reason: string, messageContent?: string): EmbedBuilder {
+    return new EmbedBuilder()
+        .setColor(0xFF0000)
+        .setTitle('Otterguard: ' + title)
+        .setDescription(reason)
+        .addFields({name: 'Message', value: messageContent || 'No message content'})
+        .setTimestamp()
+        .setFooter({text: 'Otterguard - Moderation'})
+}

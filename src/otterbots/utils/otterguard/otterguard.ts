@@ -13,6 +13,11 @@ import {otterguard_protectSpam} from "./modules/protectSpam";
  */
 export function otterbots_otterguard(client: Client): void {
     otterlogs.success("Otterguard is working!")
+    // Send a message to the moderators log channel
+    if (!process.env.MODERATION_CHANNEL_ID) {
+        otterlogs.warn('MODERATION_CHANNEL_ID is not set in the environment variables.');
+    }
+
     if (otterguardConfig.protectLink) {
         otterguard_protectLink(client)
         otterlogs.debug("Otterguard: Link protection is enabled!")
@@ -27,3 +32,4 @@ export function otterbots_otterguard(client: Client): void {
     }
 
 }
+

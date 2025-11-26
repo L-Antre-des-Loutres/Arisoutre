@@ -3,7 +3,7 @@ import {otterlogs} from "../utils/otterlogs";
 
 /**
  * Handles the deletion of both guild-specific and global commands for the bot.
- * This method listens to the 'clientReady' event and deletes all commands found in all guilds
+ * This method listens to the 'clientReady' events and deletes all commands found in all guilds
  * and any global commands associated with the bot application.
  *
  * @param {Client} client - The Discord client object used to interact with the Discord API.

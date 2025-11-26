@@ -4,15 +4,16 @@ import {clientGatewayIntent} from "../app/config/client";
 import {Client} from "discord.js";
 import {otterBots_loadCommands} from "./handlers/commandHandler";
 import {otterBots_initSalon} from "./utils/salon";
-import {otterBots_interactionCreate} from "./event/commandInteraction";
-import {otterBots_clientReady} from "./event/clientReady";
+import {otterBots_interactionCreate} from "./events/commandInteraction";
+import {otterBots_clientReady} from "./events/clientReady";
 import {otterBots_setActivity} from "./utils/activity";
-import {otterBots_initEmoteReact} from "./event/emoteReact";
+import {otterBots_initEmoteReact} from "./events/emoteReact";
 import {otterbots_purgeCommand} from "./handlers/purgeCommand";
 import {otterbots_eventHandler} from "./handlers/eventHandler";
 import {otterbots_otterguard} from "./utils/otterguard/otterguard";
 import {otterbots_initTask} from "./utils/task";
 import {Otterlyapi} from "./utils/otterlyapi/otterlyapi";
+import {taskOnStart} from "../app/config/task";
 
 dotenv.config()
 
@@ -62,7 +63,7 @@ export class Otterbots {
 
     /**
      * Sets the activity status for the client.
-     * @param {string} [activityType="playing"] - The type of activity ("playing", "streaming", "listening", "watching", "competing".).
+     * @param {string} [activityType="playing"] - The types of activity ("playing", "streaming", "listening", "watching", "competing".).
      * @param {string} activity - The activity description to display.
      * @return {void} This method does not return a value.
      */
@@ -95,16 +96,17 @@ export class Otterbots {
      *
      * @return {void} Does not return a value.
      */
-    public initTask(): void {
+    public initTask(ifTaskOnStart?: boolean): void {
         otterbots_initTask()
+        if(ifTaskOnStart){ taskOnStart();}
     }
 
-    // Bot startup event
+    // Bot startup events
     private async clientReady(client: Client = this.client): Promise<void> {
         await otterBots_clientReady(client)
     }
 
-    // Command handling event
+    // Command handling events
     private async interactionCreate(client: Client = this.client): Promise<void> {
         await otterBots_interactionCreate(client)
     }
@@ -130,7 +132,7 @@ export class Otterbots {
       await otterBots_initSalon(client)
     }
 
-    // Initialize the emote react event
+    // Initialize the emote react events
     private async initEmoteReact(client: Client = this.client): Promise<void> {
         await otterBots_initEmoteReact(client)
     }

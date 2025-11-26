@@ -1,9 +1,10 @@
 import {Events, GuildMember, roleMention, TextChannel, userMention} from "discord.js";
-import guilds from "../../../config/channelsConfig.json";
+import guilds from "../../../config/discordConfig.json";
 import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
 import {embed_analyze} from "../embeds/events/utils/analyzeEmbed";
 import {embed_welcome} from "../embeds/events/guildMemberAdd/welcomeEmbed";
+import {hasNoDataRole} from "../utils/no_data";
 
 module.exports = {
     name: Events.GuildMemberAdd,
@@ -13,7 +14,7 @@ module.exports = {
 
         const {
             channels: {welcome: channelBienvenueID, moderators: channelModeratorId},
-            roles: {bienvenue: roleBienvenueID, loutre: roleLoutreID}
+            roles: {bienvenue: roleBienvenueID, loutre: roleLoutreID},
         } = guilds;
         const guild = member.guild;
 
@@ -50,14 +51,11 @@ module.exports = {
                 (async () => {
                     try {
                         const user = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getByDiscordId", member.user.id);
-                        if (!user) {
-                            const avatarUrl = member.user.displayAvatarURL({extension: 'png', size: 512});
-                            await Otterlyapi.postDataByAlias("otr-utilisateursDiscord-create", {
+                        // On vérifie que l'utilisateur n'as pas le rôle no_data avant de l'enregistrer en BDD
+                        if (user && !await hasNoDataRole(member)) {
+                            await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-resetDataSuppressionDate", {
                                 discord_id: member.user.id,
-                                pseudo_discord: member.user.username,
-                                tag_discord: member.user.tag,
-                                avatar_url: avatarUrl,
-                            });
+                            })
                         }
                     } catch (error) {
                         otterlogs.error("Error while registering member:" + error);

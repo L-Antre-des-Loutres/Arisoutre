@@ -1,6 +1,6 @@
 import {GuildMember, Events, TextChannel} from "discord.js";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
-import guilds from "../../../config/channelsConfig.json";
+import guilds from "../../../config/discordConfig.json";
 import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
 import {UtilisateursDiscordType} from "../types/UtilisateursDiscordType";
 import {embed_guildMemberRemove} from "../embeds/events/guildMemberRemove/guildMemberRemove";
@@ -26,6 +26,9 @@ module.exports = {
             if (!channel) return otterlogs.error('Unable to retrieve moderator message channel');
 
             const userInfo: UtilisateursDiscordType | undefined = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getByDiscordId", member.user.id)
+
+            if (userInfo) await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-updateDataSuppressionDate", {discord_id: member.user.id})
+
             await channel.send({embeds: [await embed_guildMemberRemove(userInfo)]})
 
         } catch (error) {
