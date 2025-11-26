@@ -1,6 +1,6 @@
 import { Events, Message, TextChannel, AuditLogEvent } from "discord.js";
 import { otterlogs } from "../../otterbots/utils/otterlogs";
-import channels from "../../../config/channelsConfig.json";
+import channels from "../../../config/discordConfig.json";
 import {embed_onMessageDelete} from "../embeds/events/onMessageDelete/onMessageDelete";
 
 // Cache simple pour relier un message supprimé à son exécuteur
