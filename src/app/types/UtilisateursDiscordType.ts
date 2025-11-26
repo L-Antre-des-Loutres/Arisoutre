@@ -9,4 +9,12 @@ export type UtilisateursDiscordType = {
     tag_discord: string
     avatar_url: string
     vocal_time : number
+    roles: Roles[]
+    delete_date: string | null;
+}
+
+export type Roles = {
+    id: string;
+    name: string;
+    color: string;
 }
