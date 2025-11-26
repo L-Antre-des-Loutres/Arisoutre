@@ -72,6 +72,10 @@ export function registerAllMember() {
                             roles: roles
                         });
 
+                        await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-resetDataSuppressionDate", {
+                            discord_id: member.user.id,
+                        })
+
                         continue;
                     }
 

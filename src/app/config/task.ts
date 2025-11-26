@@ -41,5 +41,10 @@ export const tasks = [
     {name: "Register All discord members ", time: "0 4 * * *", task: async () => registerAllMember(), period:""}
 ];
 
+export function taskOnStart() {
+    cacheRegister();
+    registerAllMember();
+}
+
 
 

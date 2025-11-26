@@ -1,6 +1,5 @@
 import {Otterbots} from "../otterbots";
 import {Client} from "discord.js";
-import {registerAllMember} from "./tasks/registerAllMember";
 
 // Get bot instance
 const bot = new Otterbots();
@@ -10,10 +9,10 @@ bot.start();
 bot.setActivity("watching", " Watching: Ottergames")
 bot.startOtterGuard()
 
-// Start tasks (if you not use tasks, you can delete this)
-bot.initTask()
+// Start tasks (if you not use tasks, you can delete this) true = run tasks on start
+bot.initTask(true)
 
-registerAllMember()
+
 
 /**
  * Retrieves the client instance used by the bot.

@@ -26,6 +26,9 @@ module.exports = {
             if (!channel) return otterlogs.error('Unable to retrieve moderator message channel');
 
             const userInfo: UtilisateursDiscordType | undefined = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getByDiscordId", member.user.id)
+
+            if (userInfo) await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-updateDataSuppressionDate", {discord_id: member.user.id})
+
             await channel.send({embeds: [await embed_guildMemberRemove(userInfo)]})
 
         } catch (error) {
