@@ -52,14 +52,10 @@ module.exports = {
                     try {
                         const user = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getByDiscordId", member.user.id);
                         // On vérifie que l'utilisateur n'as pas le rôle no_data avant de l'enregistrer en BDD
-                        if (!user && !await hasNoDataRole(member)) {
-                            const avatarUrl = member.user.displayAvatarURL({extension: 'png', size: 512});
-                            await Otterlyapi.postDataByAlias("otr-utilisateursDiscord-create", {
+                        if (user && !await hasNoDataRole(member)) {
+                            await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-resetDataSuppressionDate", {
                                 discord_id: member.user.id,
-                                pseudo_discord: member.user.username,
-                                tag_discord: member.user.tag,
-                                avatar_url: avatarUrl,
-                            });
+                            })
                         }
                     } catch (error) {
                         otterlogs.error("Error while registering member:" + error);
