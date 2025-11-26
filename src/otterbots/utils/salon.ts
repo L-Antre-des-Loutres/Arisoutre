@@ -4,15 +4,22 @@ import {botSalon, salonCategory} from "../../app/config/salon";
 import fs from "fs";
 
 /**
- * Creates a set of channels and a category with specific permissions in a Discord server.
- * Ensures the existence of a specific role and manages permissions for that role.
+ * Represents a salon with its associated details in a JSON structure.
  *
- * @param {Client} client - The Discord client used to interact with the Discord API.
- * @return {Promise<void>} A promise that resolves when all channels and roles have been successfully created or logged.
+ * The `JsonSalonType` is structured to encapsulate information about a salon,
+ * including its name, category name, unique identifier, and webhook URL for integrations.
+ *
+ * Properties:
+ * - `name`: The name of the salon.
+ * - `categoryName`: The category or classification of the salon (e.g., spa, hair salon).
+ * - `id`: A unique identifier for the salon.
+ * - `webhook`: The URL of the webhook used for sending or receiving salon data.
  */
-export type SalonType = {
+type JsonSalonType = {
     name: string;
     categoryName: string;
+    id: string;
+    webhook: string;
 }
 
 /**
@@ -24,12 +31,12 @@ export type SalonType = {
 export async function otterBots_initSalon(client: Client): Promise<void> {
     client.on('clientReady', async (): Promise<void> => {
         try {
-            const channelNames: SalonType[] = [];
+            const channelNames: JsonSalonType[] = [];
             // Names of channels to create
             for (const category of salonCategory) {
                 for (const salon of botSalon) {
                     if (salon.category === category.id && !channelNames.some(c => c.name === salon.name)) {
-                        channelNames.push({name: salon.name, categoryName: category.name});
+                        channelNames.push({id: "", webhook: "", name: salon.name, categoryName: category.name});
                     }
                 }
             }
@@ -118,7 +125,7 @@ export async function otterBots_initSalon(client: Client): Promise<void> {
                             salon.channelId = newChannel.id;
                             otterlogs.success(`Channel "${salon.name}" created with ID: ${newChannel.id}!`);
 
-                            // Ensure channelsConfig.json exists
+                            // Ensure channels.json exists
                             await createDefaultJson()
 
                             // Create a webhook if enabled
@@ -132,14 +139,14 @@ export async function otterBots_initSalon(client: Client): Promise<void> {
                                 webhookUrl = webhook.url;
                             }
 
-                            // Update channelsConfig.json with new channel info
-                            const channelData = {...JSON.parse(fs.readFileSync('channelsConfig.json', 'utf8')),
+                            // Update channels.json with new channel info
+                            const channelData = {...JSON.parse(fs.readFileSync('channels.json', 'utf8')),
                                 [salon.alias]: {name: salon.name, id: newChannel.id, webhook: webhookUrl}
                             };
 
-                            // Write updated data back to channelsConfig.json
-                            await fs.writeFileSync('channelsConfig.json', JSON.stringify(channelData, null, 2));
-                            otterlogs.debug("Channels updated in channelsConfig.json");
+                            // Write updated data back to channels.json
+                            fs.writeFileSync('channels.json', JSON.stringify(channelData, null, 2));
+                            otterlogs.debug("Channels updated in channels.json");
                         }
                     }
                 }
@@ -153,15 +160,15 @@ export async function otterBots_initSalon(client: Client): Promise<void> {
 }
 
 /**
- * Retrieves the salon ID from channelsConfig.json using a given alias.
+ * Retrieves the salon ID from channels.json using a given alias.
  * Returns empty string if alias not found or error reading file.
  *
  * @param {string} alias - The alias identifier of the salon to look up
  * @return {Promise<string>} The channel ID if found, empty string otherwise
  */
-export function getSalonByAlias(alias: string): SalonType | void {
+export function getSalonByAlias(alias: string): JsonSalonType | void {
     try {
-        const channels = JSON.parse(fs.readFileSync('channelsConfig.json', 'utf8'));
+        const channels = JSON.parse(fs.readFileSync('channels.json', 'utf8'));
         if (channels[alias] && channels[alias].id) {
             return channels[alias];
         }
@@ -174,22 +181,22 @@ export function getSalonByAlias(alias: string): SalonType | void {
 }
 
 /**
- * Creates a default channelsConfig.json file if it doesn't exist.
+ * Creates a default channels.json file if it doesn't exist.
  * If the file exists, it reads and parses the existing channels.
  * In case of an error, it attempts to create the file again.
  */
 async function createDefaultJson(): Promise<void> {
     try {
-        if (!fs.existsSync('channelsConfig.json')) {
-            fs.writeFileSync('channelsConfig.json', JSON.stringify({}, null, 2), 'utf8');
-            otterlogs.debug('Channels file `channelsConfig.json` created by default');
+        if (!fs.existsSync('channels.json')) {
+            fs.writeFileSync('channels.json', JSON.stringify({}, null, 2), 'utf8');
+            otterlogs.debug('Channels file `channels.json` created by default');
         }
     } catch (error) {
         otterlogs.error(`Error ensuring channels.json: ${error}`);
         try {
-            if (!fs.existsSync('channelsConfig.json')) {
-                fs.writeFileSync('channelsConfig.json', JSON.stringify({}, null, 2), 'utf8');
-                otterlogs.debug('Channels file `channelsConfig.json` created after error');
+            if (!fs.existsSync('channels.json')) {
+                fs.writeFileSync('channels.json', JSON.stringify({}, null, 2), 'utf8');
+                otterlogs.debug('Channels file `channels.json` created after error');
             }
         } catch (err) {
             otterlogs.error(`Unable to create channels.json: ${err}`);

@@ -24,6 +24,7 @@ declare global {
             BOT_NAME: string
             BOT_COLOR: string
             VERSION: string
+            MODERATION_CHANNEL_ID: string
 
             ENABLE_DISCORD_SUCCESS: "true" | "false"
             ENABLE_DISCORD_LOGS: "true" | "false"

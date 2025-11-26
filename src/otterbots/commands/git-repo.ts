@@ -1,5 +1,8 @@
 import {ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, SlashCommandBuilder} from "discord.js";
 
+/**
+ * Command to display the GitHub repository link of the bot.
+ */
 export default {
     data: new SlashCommandBuilder()
         .setName("git-repo")
