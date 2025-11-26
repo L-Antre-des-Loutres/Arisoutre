@@ -1,5 +1,6 @@
-import {Client} from "discord.js";
-import {otterguard_Embed} from "../embed";
+import {Client, TextChannel} from "discord.js";
+import {otterguard_Embed, otterguard_EmbedModeration} from "../embed";
+import {otterlogs} from "../../otterlogs";
 
 /**
  * Monitors and removes potentially malicious or scam messages within a Discord server.
@@ -52,19 +53,37 @@ export async function otterguard_protectScam(client: Client) {
                     return;
                 }
 
-                let titleContent, messageContent
+                let titleContent, reason
                 if (process.env.BOT_LANGUAGE.toLowerCase() == "fr") {
                     titleContent = `Arnaque potentielle détectée !`
-                    messageContent = `${message.author}, votre message a été supprimé car il a été détecté comme potentiellement malveillant.`
+                    reason = `${message.author}, votre message a été supprimé car il a été détecté comme potentiellement malveillant.`
                 } else {
                     titleContent = `Potential scam detected!`
-                    messageContent = `${message.author}, your message has been deleted as it was detected as potentially malicious.`
+                    reason = `${message.author}, your message has been deleted as it was detected as potentially malicious.`
                 }
 
                 // Send the message to the user
                 await message.author.send({
-                    embeds: [otterguard_Embed(titleContent, messageContent)]
+                    embeds: [otterguard_Embed(titleContent, reason)]
                 });
+
+                // Send a message to the moderators log channel
+                if (!process.env.MODERATION_CHANNEL_ID) {
+                    otterlogs.warn('MODERATION_CHANNEL_ID is not set in the environment variables.');
+                }
+                const modLogChannel = await client.channels.fetch(process.env.MODERATION_CHANNEL_ID!) as TextChannel;
+                if (modLogChannel && modLogChannel.isTextBased()) {
+                    const title = process.env.BOT_LANGUAGE?.toLowerCase() === "fr" ?
+                        'Message d\'arnaque supprimé par OtterGuard' :
+                        'Scam message deleted by OtterGuard';
+                    const reason = process.env.BOT_LANGUAGE?.toLowerCase() === "fr" ?
+                        `Le message de ${message.author} détecté comme une arnaque potentielle a été supprimé.` :
+                        `Message from ${message.author} detected as a potential scam has been deleted.`;
+
+                    await modLogChannel.send({
+                        embeds: [otterguard_EmbedModeration(title, reason, content)]
+                    });
+                }
 
             } catch (error) {
                 console.error('Error handling potential scam:', error);

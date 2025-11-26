@@ -1,7 +1,7 @@
 import {ActivityType, Client} from "discord.js";
 
 /**
- * Updates the bot's activity status based on the provided activity type and activity name.
+ * Updates the bot's activity status based on the provided activity types and activity name.
  * Available activity types:
  * - "playing": Shows as "Playing {activity}"
  * - "streaming": Shows as "Streaming {activity}"
@@ -9,7 +9,7 @@ import {ActivityType, Client} from "discord.js";
  * - "watching": Shows as "Watching {activity}"
  * - "competing": Shows as "Competing in {activity}"
  *
- * @param {string} activityType - The type of activity to set (e.g., "playing", "streaming", "listening", etc.).
+ * @param {string} activityType - The types of activity to set (e.g., "playing", "streaming", "listening", etc.).
  * @param {string} activity - The name or description of the activity to display.
  * @param {Client} client - The client instance representing the bot.
  * @return {void} This function does not return a value.

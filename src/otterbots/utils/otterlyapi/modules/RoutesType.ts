@@ -1,6 +1,6 @@
 /**
  * Defines the structure for a route configuration used in an application.
- * This type specifies the essential and optional properties to handle API or
+ * This types specifies the essential and optional properties to handle API or
  * routing definitions, including metadata and potential developer comments.
  */
 export type RoutesType = {

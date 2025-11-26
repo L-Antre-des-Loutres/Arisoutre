@@ -4,6 +4,10 @@ import { pathToFileURL } from "url";
 import { Client } from "discord.js";
 import {otterlogs} from "../utils/otterlogs";
 
+/**
+ * Load all events from the events folder
+ * @param client
+ */
 export async function otterbots_eventHandler(client: Client) {
     const eventsPath = path.join(__dirname, '../../app/events');
     const eventFiles = fs.readdirSync(eventsPath).filter((file) => file.endsWith('.js'));

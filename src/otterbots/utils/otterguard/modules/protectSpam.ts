@@ -1,5 +1,5 @@
-import {Client} from "discord.js";
-import {otterguard_Embed} from "../embed";
+import {Client, TextChannel} from "discord.js";
+import {otterguard_Embed, otterguard_EmbedModeration} from "../embed";
 
 /**
  * Monitors messages in a Discord server and detects potential spam activity. If a user exceeds certain thresholds for message frequency and channel activity,
@@ -50,21 +50,36 @@ export async function otterguard_protectSpam(client: Client) {
                     }
 
                     // Send a message to the user with the link and the reason for the deletion
-                    let titleContent, messageContent
+                    let titleContent, reason
                     if (process.env.BOT_LANGUAGE.toLowerCase() == "fr") {
                         titleContent = `Spam détecté dans plusieurs salons.`
-                        messageContent = `${message.author}, un possible spam de votre part sur le serveur ${process.env.DISCORD_NAME} a été détecté, 
+                        reason = `${message.author}, un possible spam de votre part sur le serveur ${process.env.DISCORD_NAME} a été détecté, 
                         vous avez subi un timeout de 1 minute. En cas d'erreur merci de contacter un administrateur.`
                     } else {
                         titleContent = `Spam detected in multiple channels.`
-                        messageContent = `${message.author}, a possible spam of your part on the server ${process.env.DISCORD_NAME} has been detected, 
+                        reason = `${message.author}, a possible spam of your part on the server ${process.env.DISCORD_NAME} has been detected, 
                         you have been timed out for 1 minute. In case of an error please contact an administrator.`
                     }
 
                     // Send the message to the user
                     await message.author.send({
-                        embeds: [otterguard_Embed(titleContent, messageContent)]
+                        embeds: [otterguard_Embed(titleContent, reason)]
                     });
+
+                    // Send a message to the moderators log channel
+                    const modLogChannel = await client.channels.fetch(process.env.MODERATION_CHANNEL_ID!) as TextChannel;
+                    if (modLogChannel && modLogChannel.isTextBased()) {
+                        const title = process.env.BOT_LANGUAGE?.toLowerCase() === "fr" ?
+                            'Utilisateur mis en timeout pour spam par OtterGuard' :
+                            'User timed out for spam by OtterGuard';
+                        const reason = process.env.BOT_LANGUAGE?.toLowerCase() === "fr" ?
+                            `Le membre ${message.author} a été mis en timeout pour spam détecté dans plusieurs salons.` :
+                            `Member ${message.author} has been timed out for spam detected in multiple channels.`;
+
+                        await modLogChannel.send({
+                            embeds: [otterguard_EmbedModeration(title, reason)]
+                        });
+                    }
                 }
             } catch (error) {
                 console.error('Error timing out user:', error);
