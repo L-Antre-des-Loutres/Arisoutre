@@ -1,12 +1,8 @@
-import {Client, Events, VoiceState} from "discord.js";
-import {otterlogs} from "../../otterbots/utils/otterlogs";
-import {lastActivityCache, nbMessageCache, vocalTimeCache} from "../config/cache";
-import {hasNoDataRole} from "../utils/no_data";
-
-// Map pour stocker le temps cumulé en ms
-const voiceTimes: Map<string, number> = new Map();
-// Map pour stocker l'heure d'entrée dans le vocal
-const joinTimestamps: Map<string, number> = new Map();
+import { Client, Events, VoiceState } from "discord.js";
+import { otterlogs } from "../../otterbots/utils/otterlogs";
+import { lastActivityCache, nbMessageCache, vocalTimeCache } from "../config/cache";
+import { hasNoDataRole } from "../utils/no_data";
+import { joinTimestamps, voiceTimes } from "../utils/voiceState";
 
 // Fonction pour sauvegarder dans la DB en heures décimales
 async function saveVoiceTime(userId: string, deltaMs: number) {
@@ -63,6 +59,7 @@ module.exports = {
 
             // Entrée dans un canal vocal
             if (!oldState.channel && newState.channel) {
+                otterlogs.debug("User " + userId + " joined voice channel " + newState.channel.id);
                 joinTimestamps.set(userId, Date.now());
             }
 
@@ -77,6 +74,7 @@ module.exports = {
 
                     // Mise à jour en mémoire
                     voiceTimes.set(userId, (voiceTimes.get(userId) || 0) + elapsed);
+                    otterlogs.debug("User " + userId + " left voice channel " + oldState.channel.id + ", total time: " + (voiceTimes.get(userId) || 0) + " ms");
                     joinTimestamps.delete(userId);
                 }
             }
@@ -102,31 +100,7 @@ module.exports = {
                 joinTimestamps.set(userId, Date.now());
             }
         } catch (err) {
-            otterlogs.error(`Erreur VoiceStateUpdate pour ${userId}`+ err + client);
+            otterlogs.error(`Erreur VoiceStateUpdate pour ${userId}` + err + client);
         }
     },
 };
-
-module.exports = {
-    name: Events.ClientReady,
-    async execute(client: Client) {
-        try {
-            // Parcourir tous les serveurs du bot
-            client.guilds.cache.forEach(guild => {
-                // Parcourir tous les salons vocaux
-                guild.channels.cache.forEach(channel => {
-                    if (channel.isVoiceBased()) {
-                        // Parcourir tous les membres connectés
-                        channel.members.forEach(member => {
-                            if (!member.user.bot) {
-                                joinTimestamps.set(member.id, Date.now());
-                            }
-                        });
-                    }
-                });
-            });
-        } catch (error) {
-            console.error('Error checking voice channels:', error);
-        }
-    }
-}
