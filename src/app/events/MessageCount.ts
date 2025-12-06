@@ -2,6 +2,7 @@ import {Events, Message} from "discord.js"
 import {otterlogs} from "../../otterbots/utils/otterlogs";
 import {lastActivityCache, nbMessageCache} from "../config/cache";
 import {hasNoDataRole} from "../utils/no_data";
+import {getSqlDate} from "../utils/sqlDate";
 
 module.exports = {
     name: Events.MessageCreate,
@@ -26,7 +27,7 @@ module.exports = {
 
             // Incrémenter et stocker directement le nombre
             nbMessageCache.set(authorId, messageCount + 1);
-            lastActivityCache.set(authorId, Date.now())
+            lastActivityCache.set(authorId, getSqlDate())
 
         } catch (error) {
             otterlogs.error("Error in OnMessageCreate event: " + error);

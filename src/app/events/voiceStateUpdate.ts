@@ -3,6 +3,7 @@ import { otterlogs } from "../../otterbots/utils/otterlogs";
 import { lastActivityCache, nbMessageCache, vocalTimeCache } from "../config/cache";
 import { hasNoDataRole } from "../utils/no_data";
 import { joinTimestamps, voiceTimes } from "../utils/voiceState";
+import {getSqlDate} from "../utils/sqlDate";
 
 // Fonction pour sauvegarder dans la DB en heures décimales
 async function saveVoiceTime(userId: string, deltaMs: number) {
@@ -55,7 +56,7 @@ module.exports = {
             if (await hasNoDataRole(member)) return;
 
             // Mise à jour de la dernière activité
-            lastActivityCache.set(userId, Date.now())
+            lastActivityCache.set(userId, getSqlDate())
 
             // Entrée dans un canal vocal
             if (!oldState.channel && newState.channel) {

@@ -42,5 +42,8 @@ export const authorizedDomains: string[] = [
     "https://pokebip.com",
     "https://store.steampowered.com",
     "https://genshin.hoyoverse.com",
-    "https://fixupx.com"
+    "https://fixupx.com",
+    "https://modrinth.com",
+    "https://www.curseforge.com",
+    "https://curseforge.com"
 ];
