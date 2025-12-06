@@ -31,7 +31,6 @@ export async function otterguard_protectScam(client: Client) {
             /discord\s*(?:nitro|gift|gratuit|free)/i,
             /free\s*(?:nitro|steam|gift)/i,
             /\b(?:give\s*away|giveaway)\b/i,
-            /\b(?:http|https):\/\/(?!discord\.(?:com|gg)|youtube\.com|youtu\.be|twitch\.tv|tenor\.com|cdn\.discordapp\.com)[\w\-]+\.\w+/i
         ];
 
         const content = message.content.toLowerCase();
