@@ -1,6 +1,5 @@
 import { otterlogs } from "../../otterbots/utils/otterlogs";
 import { Client, Events } from "discord.js";
-
 import { joinTimestamps } from "../utils/voiceState";
 
 module.exports = {

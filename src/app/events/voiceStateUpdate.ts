@@ -1,14 +1,15 @@
 import { Client, Events, VoiceState } from "discord.js";
 import { otterlogs } from "../../otterbots/utils/otterlogs";
-import { lastActivityCache, nbMessageCache, vocalTimeCache } from "../config/cache";
+import { lastActivityCache, vocalTimeCache } from "../config/cache";
 import { hasNoDataRole } from "../utils/no_data";
 import { joinTimestamps, voiceTimes } from "../utils/voiceState";
+import { getSqlDate } from "../utils/sqlDate";
 
 // Fonction pour sauvegarder dans la DB en heures décimales
 async function saveVoiceTime(userId: string, deltaMs: number) {
     try {
         const hoursDelta = deltaMs / 1000 / 60 / 60;
-        const currentVocalTime = nbMessageCache.get(userId) || 0;
+        const currentVocalTime = vocalTimeCache.get(userId) || 0;
 
         // On enregistre dans le cache
         vocalTimeCache.set(userId, currentVocalTime + hoursDelta);
@@ -31,6 +32,7 @@ setInterval(async () => {
 
             // Mettre à jour les maps
             joinTimestamps.set(userId, now);
+            otterlogs.debug("Periodic flush for user " + userId + ", added time: " + elapsed + " ms");
             voiceTimes.set(userId, (voiceTimes.get(userId) || 0) + elapsed);
         }
     } catch (err) {
@@ -55,7 +57,7 @@ module.exports = {
             if (await hasNoDataRole(member)) return;
 
             // Mise à jour de la dernière activité
-            lastActivityCache.set(userId, Date.now())
+            lastActivityCache.set(userId, getSqlDate())
 
             // Entrée dans un canal vocal
             if (!oldState.channel && newState.channel) {

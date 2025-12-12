@@ -1,7 +1,8 @@
-import {nbMessageCache, vocalTimeCache} from "../config/cache";
+import {lastActivityCache, nbMessageCache, vocalTimeCache} from "../config/cache";
 import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
 import {UtilisateursDiscordType} from "../types/UtilisateursDiscordType";
+import {getSqlDate} from "../utils/sqlDate";
 
 /**
  * Registers and logs all messages in the nbMessageCache.
@@ -35,6 +36,7 @@ export async function cacheRegister(): Promise<void> {
         }
         nbMessageCache.clear();
 
+        // Enregistrement du temps vocal dans la BDD
         for (const [discordId] of vocalTimeCache.entries()) {
             // Récupération de l'id en BDD
             const userData: UtilisateursDiscordType | undefined = await Otterlyapi.getDataByAlias(
@@ -56,6 +58,30 @@ export async function cacheRegister(): Promise<void> {
             );
         }
         vocalTimeCache.clear();
+
+        // Enregistrement de la derniere activité dans la BDD
+        for (const [discordId] of lastActivityCache.entries()) {
+            // Récupération de l'id en BDD
+            const userData: UtilisateursDiscordType | undefined = await Otterlyapi.getDataByAlias(
+                "otr-utilisateursDiscord-getByDiscordId",
+                discordId
+            );
+
+            if (!userData) {
+                otterlogs.error(`No user found in database for Discord ID: ${discordId}`);
+                continue;
+            }
+
+            await Otterlyapi.putDataByAlias(
+                "otr-utilisateursDiscord-updateActivity",
+                {
+                    id: userData.id,
+                    last_activity: lastActivityCache.get(discordId) || getSqlDate()
+                }
+            );
+        }
+        lastActivityCache.clear();
+
         otterlogs.success("Task cacheRegister executed successfully.");
 
     } catch (error) {

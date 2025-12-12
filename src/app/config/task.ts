@@ -26,8 +26,11 @@
 //      expression = "* * * * *"
 
 
-import {cacheRegister} from "../tasks/cacheRegister";
-import {registerAllMember} from "../tasks/registerAllMember";
+import { Otterlyapi } from "../../otterbots/utils/otterlyapi/otterlyapi";
+import { cacheRegister } from "../tasks/cacheRegister";
+import { registerAllMember } from "../tasks/registerAllMember";
+
+const otterlyapi = new Otterlyapi();
 
 /**
  * Represents a list of scheduled tasks with their respective configurations.
@@ -37,8 +40,9 @@ import {registerAllMember} from "../tasks/registerAllMember";
  * - `task`: An asynchronous function to be executed at the specified time.
  */
 export const tasks = [
-    {name: "Register Cache on BDD", time: "0 4 * * *", task: async () => cacheRegister(), period: ""},
-    {name: "Register All discord members ", time: "0 4 * * *", task: async () => registerAllMember(), period:""}
+    { name: "Register Cache on BDD", time: "0 4 * * *", task: async () => cacheRegister(), period: "" },
+    { name: "Register All discord members ", time: "0 4 * * *", task: async () => registerAllMember(), period: "" },
+    { name: "Refresh API routes ", time: "0 4 * * *", task: async () => otterlyapi.init(), period: "" }
 ];
 
 export function taskOnStart() {
