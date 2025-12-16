@@ -48,5 +48,6 @@ export const authorizedDomains: string[] = [
     "https://curseforge.com",
     "https://medal.tv",
     "https://wiki.antredesloutres.fr",
-    "https://github.com"
+    "https://github.com",
+    "https://fixvx.com"
 ];
