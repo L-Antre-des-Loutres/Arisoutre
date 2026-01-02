@@ -40,15 +40,12 @@ const otterlyapi = new Otterlyapi();
  * - `task`: An asynchronous function to be executed at the specified time.
  */
 export const tasks = [
-    { name: "Register Cache on BDD", time: "0 4 * * *", task: async () => cacheRegister(), period: "" },
-    { name: "Register All discord members ", time: "0 4 * * *", task: async () => registerAllMember(), period: "" },
-    { name: "Refresh API routes ", time: "0 4 * * *", task: async () => otterlyapi.init(), period: "" }
+    { name: "Register Cache on BDD", time: "0 5 * * *", task: async () => cacheRegister(), period: "" },
+    { name: "Register All discord members ", time: "0 5 * * *", task: async () => registerAllMember(), period: "" },
+    { name: "Refresh API routes ", time: "0 5 * * *", task: async () => otterlyapi.init(), period: "" }
 ];
 
-export function taskOnStart() {
-    cacheRegister();
-    registerAllMember();
-}
+export function taskOnStart() {}
 
 
 

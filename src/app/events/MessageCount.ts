@@ -1,6 +1,6 @@
-import {Events, Message} from "discord.js"
+import {Events, Message, TextChannel} from "discord.js"
 import {otterlogs} from "../../otterbots/utils/otterlogs";
-import {lastActivityCache, nbMessageCache} from "../config/cache";
+import {lastActivityCache, nbMessageCache, textChannelCache} from "../config/cache";
 import {hasNoDataRole} from "../utils/no_data";
 import {getSqlDate} from "../utils/sqlDate";
 
@@ -29,6 +29,20 @@ module.exports = {
             nbMessageCache.set(authorId, messageCount + 1);
             lastActivityCache.set(authorId, getSqlDate())
 
+            // On vérifie que le message provient d'un salon textuel'
+            if (!message.channel.isTextBased() || !("name" in message.channel)) {
+                return;
+            }
+
+            const rawData = textChannelCache.get(authorId);
+            const userChannels = Array.isArray(rawData) ? rawData : [];
+            const channelExists = userChannels.some(channel => channel.id === message.channel.id);
+            if (!channelExists) {
+                textChannelCache.set(authorId, [
+                    ...userChannels,
+                    { name: (message.channel as TextChannel).name, id: message.channel.id }
+                ]);
+            }
         } catch (error) {
             otterlogs.error("Error in OnMessageCreate event: " + error);
         }
