@@ -1,9 +1,51 @@
-import { Client, Events, VoiceState } from "discord.js";
+import {Client, Events, VoiceState} from "discord.js";
 import { otterlogs } from "../../otterbots/utils/otterlogs";
-import { lastActivityCache, vocalTimeCache } from "../config/cache";
+import {lastActivityCache, vocalTimeCache, vocalWithCache, voiceChannelCache} from "../config/cache";
 import { hasNoDataRole } from "../utils/no_data";
 import { joinTimestamps, voiceTimes } from "../utils/voiceState";
 import { getSqlDate } from "../utils/sqlDate";
+
+// Fonction pour sauvegarder en cache le channel vocal
+export async function saveVoiceChannel(voiceState: VoiceState, userId: string) {
+    // On vérifie que le channel est un channel vocal
+    if (!voiceState.channel || !("name" in voiceState.channel)) {
+        return;
+    }
+
+    const rawData = voiceChannelCache.get(userId);
+    const userChannels = Array.isArray(rawData) ? rawData : [];
+    const channelExists = userChannels.some(channel => channel.id === voiceState.channel?.id);
+    if (!channelExists) {
+        voiceChannelCache.set(userId, [
+            ...userChannels,
+            {name: voiceState.channel.name, id: voiceState.channel.id}
+        ]);
+
+        // Ajoute tous les autres utilisateurs présents dans le vocal
+        const otherUsers = voiceState.channel.members
+            .filter(member => member.id !== userId && !member.user.bot)
+            .map(member => ({
+                id: member.id,
+                name: member.user.username
+            }));
+
+        const rawVocalWith = vocalWithCache.get(userId);
+        const userVocalWith = Array.isArray(rawVocalWith) ? rawVocalWith : [];
+        const uniqueUsers = otherUsers.filter(user =>
+            !userVocalWith.some(existing => existing.id === user.id)
+        );
+
+        if (uniqueUsers.length > 0) {
+            vocalWithCache.set(userId, [
+                ...userVocalWith,
+                ...uniqueUsers.map(user => ({
+                    id: user.id,
+                    username: user.name
+                }))
+            ]);
+        }
+    }
+}
 
 // Fonction pour sauvegarder dans la DB en heures décimales
 async function saveVoiceTime(userId: string, deltaMs: number) {
@@ -13,7 +55,6 @@ async function saveVoiceTime(userId: string, deltaMs: number) {
 
         // On enregistre dans le cache
         vocalTimeCache.set(userId, currentVocalTime + hoursDelta);
-
     } catch (error) {
         otterlogs.error("Erreur saveVoiceTime: " + error + "voiceStateUpdate");
     }
@@ -63,6 +104,9 @@ module.exports = {
             if (!oldState.channel && newState.channel) {
                 otterlogs.debug("User " + userId + " joined voice channel " + newState.channel.id);
                 joinTimestamps.set(userId, Date.now());
+
+                // Sauvegarde du canal vocal
+                await saveVoiceChannel(newState, userId);
             }
 
             // Sortie d’un canal vocal
@@ -96,6 +140,9 @@ module.exports = {
 
                     // Mise à jour en mémoire
                     voiceTimes.set(userId, (voiceTimes.get(userId) || 0) + elapsed);
+
+                    // Sauvegarde du canal vocal
+                    await saveVoiceChannel(newState, userId);
                 }
 
                 // Redémarrer le compteur à partir du nouveau canal

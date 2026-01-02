@@ -1,4 +1,11 @@
-import { lastActivityCache, nbMessageCache, vocalTimeCache } from "../config/cache";
+import {
+    lastActivityCache,
+    nbMessageCache,
+    textChannelCache,
+    vocalTimeCache,
+    vocalWithCache,
+    voiceChannelCache
+} from "../config/cache";
 import { Otterlyapi } from "../../otterbots/utils/otterlyapi/otterlyapi";
 import { otterlogs } from "../../otterbots/utils/otterlogs";
 import { UtilisateursDiscordType } from "../types/UtilisateursDiscordType";
@@ -34,20 +41,24 @@ export async function cacheRegister(): Promise<void> {
 
             let isUpdated = false;
 
-            // Mise à jour du nombre de messages
+            // Ajout du nombre de messages
             const nbMessages = nbMessageCache.get(discordId);
             if (nbMessages) {
                 userData.nb_message += nbMessages;
                 isUpdated = true;
             }
 
-            // Mise à jour du temps vocal
+            // Ajout du temps vocal
             const vocalTime = vocalTimeCache.get(discordId);
             if (vocalTime) {
                 userData.vocal_time += vocalTime;
                 isUpdated = true;
             }
 
+            // Ajout des channels textuels et vocal avec lequel l'utilisateur à interagi
+            const textChannels = textChannelCache.get(discordId) || [];
+            const voiceChannels = voiceChannelCache.get(discordId) || [];
+            const vocalWith = vocalWithCache.get(discordId) || [];
 
             if (isUpdated) {
                 const date = new Date();
@@ -61,8 +72,9 @@ export async function cacheRegister(): Promise<void> {
                     nb_message: nbMessages || 0,
                     vocal_time: vocalTime || 0,
                     date_stats: `${day}/${month}/${year}`,
-                    voice_channels: [],
-                    text_channels: []
+                    voice_channels: voiceChannels,
+                    text_channels: textChannels,
+                    vocal_with: vocalWith
                 };
                 statsToPush.push({ discordId, stats });
             }
@@ -81,6 +93,9 @@ export async function cacheRegister(): Promise<void> {
                     // Suppression du cache pour cet utilisateur UNIQUEMENT en cas de succès
                     nbMessageCache.delete(item.discordId);
                     vocalTimeCache.delete(item.discordId);
+                    textChannelCache.delete(item.discordId);
+                    voiceChannelCache.delete(item.discordId);
+                    vocalWithCache.delete(item.discordId);
                 } else {
                     failureCount++;
                 }

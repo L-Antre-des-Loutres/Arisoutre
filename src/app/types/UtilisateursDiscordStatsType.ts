@@ -19,6 +19,7 @@ export type UtilisateursDiscordStatsType = {
     date_stats: string
     voice_channels: ChannelActivity[]
     text_channels: ChannelActivity[]
+    vocal_with: DiscordUser[]
 }
 
 /**
@@ -31,4 +32,19 @@ export type UtilisateursDiscordStatsType = {
 export type ChannelActivity = {
     id: string,
     name: string
+}
+
+/**
+ * Represents a Discord user.
+ *
+ * This interface defines the basic structure of a Discord user,
+ * including their unique identifier and username.
+ *
+ * Properties:
+ * - `id` (string): The unique identifier for the Discord user.
+ * - `username` (string): The display name chosen by the Discord user.
+ */
+export interface DiscordUser {
+    id: string,
+    username: string
 }
