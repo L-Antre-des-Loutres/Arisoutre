@@ -17,9 +17,9 @@ export type UtilisateursDiscordStatsType = {
     nb_message: number
     vocal_time: number
     date_stats: string
-    voice_channels: ChannelActivity[]
-    text_channels: ChannelActivity[]
-    vocal_with: DiscordUser[]
+    voice_channels?: ChannelActivity[]
+    text_channels?: ChannelActivity[]
+    vocal_with?: DiscordUser[]
 }
 
 /**
