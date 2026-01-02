@@ -15,9 +15,11 @@ export async function loutreAssureCheck() {
         }
 
         // On vérifie le score pour les utilisateurs n'ayant pas encore le rôle loutre assuré
-        // TODO : LES PERSONNES SANS ROLES DOIVENT ETRE IGNOREE
         for (const utilisateur of utilisateurs) {
-            if (!utilisateur.roles.some(role => role.id === roles.loutre_assure)) {
+            if (!utilisateur.roles.some(role => role.id === roles.loutre_assure)
+                && utilisateur.roles.some(role => role.id === roles.loutre)
+                && !utilisateur.delete_date)
+            {
                 if (await discordActivityScore(utilisateur.nb_message, utilisateur.vocal_time) > 30) {
                     otterlogs.log(`L'utilisateur ${utilisateur.pseudo_discord} a atteint le score de loutre assuré.`)
                 }
