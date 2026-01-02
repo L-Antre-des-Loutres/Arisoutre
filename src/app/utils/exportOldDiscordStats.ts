@@ -2,6 +2,14 @@ import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
 import {UtilisateursDiscordType} from "../types/UtilisateursDiscordType";
 import {UtilisateursDiscordStatsType} from "../types/UtilisateursDiscordStatsType";
 
+/**
+ * Exports old Discord statistics for all users.
+ * Retrieves a list of Discord users and processes their statistics to generate and export data
+ * if certain conditions are met (e.g., having messages or vocal time). The process involves
+ * creating statistical entries and posting them using the Otterly API.
+ *
+ * @return {Promise<void>} A promise that resolves once the export process is completed.
+ */
 export async function exportOldDiscordStats() {
     const utilisateurs: UtilisateursDiscordType[] | undefined = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getAll")
     if (!utilisateurs) {
