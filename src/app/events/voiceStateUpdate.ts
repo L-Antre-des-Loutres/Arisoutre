@@ -43,6 +43,25 @@ export async function saveVoiceChannel(voiceState: VoiceState, userId: string) {
                     username: user.name
                 }))
             ]);
+
+            // Ajoute réciproquement le nouvel utilisateur au cache des utilisateurs déjà présents
+            uniqueUsers.forEach(otherUser => {
+                const rawOtherVocalWith = vocalWithCache.get(otherUser.id);
+                const otherUserVocalWith = Array.isArray(rawOtherVocalWith) ? rawOtherVocalWith : [];
+
+                // Vérifie si l'utilisateur actuel n'est pas déjà dans le cache de l'autre utilisateur
+                const alreadyExists = otherUserVocalWith.some(existing => existing.id === userId);
+
+                if (!alreadyExists) {
+                    vocalWithCache.set(otherUser.id, [
+                        ...otherUserVocalWith,
+                        {
+                            id: userId,
+                            username: voiceState.member?.user.username || 'Unknown'
+                        }
+                    ]);
+                }
+            });
         }
     }
 }
