@@ -6,7 +6,11 @@
   },
   "roles": {
     "bienvenue": "1177237480370602005",
-    "loutre": "1112708657180852284",
+    "loutre_nouvelle": "1112708657180852284",
+    "loutre_assure": "1112708514096353380",
+    "loutre_sentinelle": "1404566182203490427",
+    "loutre_architecte": "1438225321085108224",
+    "loutre_fondatrice": "1112707976273338470",
     "no_data": "1443176528081981460"
   }
 }
