@@ -31,7 +31,7 @@ export async function loutreAssureCheck() {
         // On vérifie le score pour les utilisateurs n'ayant pas encore le rôle loutre assuré
         for (const utilisateur of utilisateurs) {
             if (!utilisateur.roles.some(role => role.id === roles.loutre_assure)
-                && utilisateur.roles.some(role => role.id === roles.loutre)
+                && utilisateur.roles.some(role => role.id === roles.loutre_nouvelle)
                 && !utilisateur.delete_date) {
                 // On récupère les stats de l'utilisateur
                 const stats = utilisateursStats.filter(stat => stat.id_utilisateur === utilisateur.id)
@@ -51,7 +51,7 @@ export async function loutreAssureCheck() {
                         const member = await guild.members.fetch(utilisateur.discord_id);
 
                         await member.roles.add(roles.loutre_assure);
-                        await member.roles.remove(roles.loutre);
+                        await member.roles.remove(roles.loutre_nouvelle);
                         otterlogs.log(`L'utilisateur ${utilisateur.pseudo_discord} a obtenu le role Loutre assure automatiquement. (score d'activite superieur a 30)`);
                     } catch (error) {
                         otterlogs.warn(`Impossible de trouver l'utilisateur ${utilisateur.pseudo_discord} ou la guilde (${guildId}): ${error}`);

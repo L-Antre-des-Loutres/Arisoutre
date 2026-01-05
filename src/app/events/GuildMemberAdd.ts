@@ -14,7 +14,7 @@ module.exports = {
 
         const {
             channels: {welcome: channelBienvenueID, moderators: channelModeratorId},
-            roles: {bienvenue: roleBienvenueID, loutre: roleLoutreID},
+            roles: {bienvenue: roleBienvenueID, loutre_nouvelle: roleLoutreID},
         } = guilds;
         const guild = member.guild;
 
