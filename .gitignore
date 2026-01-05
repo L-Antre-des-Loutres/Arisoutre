@@ -6,11 +6,14 @@
 
 # cache
 /cache
-
-.env
-
-.idea
-
+otterlyApiRoutes.json
+authorizedDomains.json
 channels.json
 
-otterlyApiRoutes.json
+# environement variables
+.env
+
+# IDE
+.idea
+
+
