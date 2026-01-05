@@ -53,6 +53,8 @@ export const tasks = [
 
 export function taskOnStart() {
     registerAllMember();
+    otterlyapi.init();
+    fetchAuthorizedDomains();
 }
 
 
