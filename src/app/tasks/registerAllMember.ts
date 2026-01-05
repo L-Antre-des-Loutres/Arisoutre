@@ -4,20 +4,24 @@ import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
 import {UtilisateursDiscordType} from "../types/UtilisateursDiscordType";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
 
+const GUILD_ID = process.env.DISCORD_GUILD_ID; // L'Antre des Loutres
+
 export function registerAllMember() {
     // On récupére le client du bot
     const client = getClient()
 
-    client.on('clientReady', async () => {
+    client.once('clientReady', async () => {
         if (!client.user) {
             console.error('Client user is not defined.');
             return;
         }
 
-        const guilds = client.guilds.cache;
+        const guild = client.guilds.cache.get(GUILD_ID);
 
-        for (const [guildId, guild] of guilds) {
-
+        if (!guild) {
+            otterlogs.error(`Guild ${GUILD_ID} not found`);
+            return;
+        }
             /**
              * export type Roles = {
              *     id: string;
@@ -92,8 +96,7 @@ export function registerAllMember() {
                 }
 
             } catch (error) {
-                otterlogs.error(`Failed to fetch members for guild: ${guild.name} (${guildId})` + error);
+                otterlogs.error(`Failed to fetch members for guild: ${guild.name} (${GUILD_ID})` + error);
             }
-        }
     });
 }
