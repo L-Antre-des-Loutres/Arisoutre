@@ -43,12 +43,12 @@ const otterlyapi = new Otterlyapi();
 export const tasks = [
     { name: "Register Cache on BDD", time: "0 4 * * *", task: async () => cacheRegister(), period: "" },
     { name: "Register All discord members ", time: "0 4 * * *", task: async () => registerAllMember(), period: "" },
-    { name: "Refresh API routes ", time: "0 4 * * *", task: async () => otterlyapi.init(), period: "" }
+    { name: "Refresh API routes ", time: "0 4 * * *", task: async () => otterlyapi.init(), period: "" },
+    { name: "Loutre assure Check ", time: "30 4 * * *", task: async () => loutreAssureCheck(), period: "" }
 ];
 
 export function taskOnStart() {
     registerAllMember();
-    loutreAssureCheck();
 }
 
 
