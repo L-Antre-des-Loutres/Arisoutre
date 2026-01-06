@@ -6,7 +6,7 @@ import { joinTimestamps, voiceTimes } from "../utils/voiceState";
 import { getSqlDate } from "../utils/sqlDate";
 
 // Fonction pour sauvegarder en cache le channel vocal
-export async function saveVoiceChannel(voiceState: VoiceState, userId: string) {
+export async function saveVoiceChannel(voiceState: VoiceState, userId: string, vocalTimeMs?: number) {
     // On vérifie que le channel est un channel vocal
     if (!voiceState.channel || !("name" in voiceState.channel)) {
         return;
@@ -15,10 +15,15 @@ export async function saveVoiceChannel(voiceState: VoiceState, userId: string) {
     const rawData = voiceChannelCache.get(userId);
     const userChannels = Array.isArray(rawData) ? rawData : [];
     const channelExists = userChannels.some(channel => channel.id === voiceState.channel?.id);
+
     if (!channelExists) {
         voiceChannelCache.set(userId, [
             ...userChannels,
-            {name: voiceState.channel.name, id: voiceState.channel.id}
+            {
+                name: voiceState.channel.name,
+                id: voiceState.channel.id,
+                vocal_time: (vocalTimeMs ? vocalTimeMs / 1000 / 60 / 60 : 0)
+            }
         ]);
 
         // Ajoute tous les autres utilisateurs présents dans le vocal
@@ -63,6 +68,20 @@ export async function saveVoiceChannel(voiceState: VoiceState, userId: string) {
                 }
             });
         }
+    } else if (vocalTimeMs) {
+        // Si le channel existe déjà, on met à jour le temps vocal
+        const updatedChannels = userChannels.map(channel => {
+            if (channel.id === voiceState.channel?.id) {
+                const currentTime = channel.vocal_time || 0;
+                return {
+                    ...channel,
+                    vocal_time: currentTime + (vocalTimeMs / 1000 / 60 / 60) // Ajouter le temps en heures
+                };
+            }
+            return channel;
+        });
+
+        voiceChannelCache.set(userId, updatedChannels);
     }
 }
 
@@ -139,6 +158,7 @@ module.exports = {
 
                     // Mise à jour en mémoire
                     voiceTimes.set(userId, (voiceTimes.get(userId) || 0) + elapsed);
+                    await saveVoiceChannel(oldState, userId, (elapsed || 0));
                     otterlogs.debug("User " + userId + " left voice channel " + oldState.channel.id + ", total time: " + (voiceTimes.get(userId) || 0) + " ms");
                     joinTimestamps.delete(userId);
                 }
@@ -161,7 +181,8 @@ module.exports = {
                     voiceTimes.set(userId, (voiceTimes.get(userId) || 0) + elapsed);
 
                     // Sauvegarde du canal vocal
-                    await saveVoiceChannel(newState, userId);
+                    await saveVoiceChannel(oldState, userId, (elapsed || 0));
+                    await saveVoiceChannel(newState, userId)
                 }
 
                 // Redémarrer le compteur à partir du nouveau canal

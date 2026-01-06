@@ -32,6 +32,8 @@ export type UtilisateursDiscordStatsType = {
 export type ChannelActivity = {
     id: string,
     name: string
+    nb_message?: number
+    vocal_time?: number
 }
 
 /**
