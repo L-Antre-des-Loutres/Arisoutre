@@ -36,12 +36,15 @@ module.exports = {
 
             const rawData = textChannelCache.get(authorId);
             const userChannels = Array.isArray(rawData) ? rawData : [];
-            const channelExists = userChannels.some(channel => channel.id === message.channel.id);
-            if (!channelExists) {
+            const channelIndex = userChannels.findIndex(channel => channel.id === message.channel.id);
+            if (channelIndex === -1) {
                 textChannelCache.set(authorId, [
                     ...userChannels,
-                    { name: (message.channel as TextChannel).name, id: message.channel.id }
+                    {name: (message.channel as TextChannel).name, id: message.channel.id, nb_message: 1}
                 ]);
+            } else {
+                userChannels[channelIndex].nb_message = (userChannels[channelIndex].nb_message || 0) + 1;
+                textChannelCache.set(authorId, userChannels);
             }
         } catch (error) {
             otterlogs.error("Error in OnMessageCreate event: " + error);
