@@ -158,7 +158,7 @@ module.exports = {
 
                     // Mise à jour en mémoire
                     voiceTimes.set(userId, (voiceTimes.get(userId) || 0) + elapsed);
-                    await saveVoiceChannel(oldState, userId, (voiceTimes.get(userId) || 0));
+                    await saveVoiceChannel(oldState, userId, (elapsed || 0));
                     otterlogs.debug("User " + userId + " left voice channel " + oldState.channel.id + ", total time: " + (voiceTimes.get(userId) || 0) + " ms");
                     joinTimestamps.delete(userId);
                 }
@@ -181,7 +181,7 @@ module.exports = {
                     voiceTimes.set(userId, (voiceTimes.get(userId) || 0) + elapsed);
 
                     // Sauvegarde du canal vocal
-                    await saveVoiceChannel(oldState, userId, (voiceTimes.get(userId) || 0));
+                    await saveVoiceChannel(oldState, userId, (elapsed || 0));
                     await saveVoiceChannel(newState, userId)
                 }
 
