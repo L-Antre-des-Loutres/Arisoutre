@@ -43,7 +43,7 @@
 
 ---
 
-## 🚀 Fonctionnalités
+## 🚀 Fonctionnalités (hérité d'Otterbots)
 
 ### 🛡️ OtterGuard - Système de protection
 
