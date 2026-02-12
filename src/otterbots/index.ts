@@ -13,7 +13,6 @@ import {otterbots_eventHandler} from "./handlers/eventHandler";
 import {otterbots_otterguard} from "./utils/otterguard/otterguard";
 import {otterbots_initTask} from "./utils/task";
 import {Otterlyapi} from "./utils/otterlyapi/otterlyapi";
-import {taskOnStart} from "../app/config/task";
 
 dotenv.config()
 
@@ -96,9 +95,8 @@ export class Otterbots {
      *
      * @return {void} Does not return a value.
      */
-    public initTask(ifTaskOnStart?: boolean): void {
+    public initTask(): void {
         otterbots_initTask()
-        if(ifTaskOnStart){ taskOnStart();}
     }
 
     // Bot startup events
