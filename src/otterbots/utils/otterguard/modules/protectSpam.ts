@@ -1,17 +1,21 @@
-import {Client, TextChannel} from "discord.js";
+import {Client, Message, TextChannel} from "discord.js";
 import {otterguard_Embed, otterguard_EmbedModeration} from "../embed";
+import {otterguardConfig} from "../../../../app/config/otterguardConfig";
 
 /**
  * Monitors messages in a Discord server and detects potential spam activity. If a user exceeds certain thresholds for message frequency and channel activity,
  * the method temporarily restricts the user by applying a timeout and sends a warning message privately.
  *
  * @param {Client} client - The Discord.js client instance used to monitor and manage server activities.
+ * @param message
  * @return {Promise<void>} Resolves when the spam protection mechanism is successfully initialized.
  */
-export async function otterguard_protectSpam(client: Client) {
-    client.on('messageCreate', async (message) => {
-        if (message.author.bot) return;
+export async function otterguard_protectSpam(client: Client, message: Message) {
 
+    // Check if the spam protection feature is enabled
+    if (!otterguardConfig.protectSpam) return;
+
+    // Cache Init
         const messageCache = new Map();
         const channelCache = new Map();
         const MESSAGES_THRESHOLD = 5;
@@ -85,5 +89,4 @@ export async function otterguard_protectSpam(client: Client) {
                 console.error('Error timing out user:', error);
             }
         }
-    })
 }

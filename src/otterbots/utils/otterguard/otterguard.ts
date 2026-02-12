@@ -1,35 +1,19 @@
 import {otterlogs} from "../otterlogs";
 import {Client} from "discord.js";
-import {otterguard_protectLink} from "./modules/protectLink";
-import {otterguardConfig} from "../../../app/config/otterguardConfig";
-import {otterguard_protectScam} from "./modules/protectScam";
-import {otterguard_protectSpam} from "./modules/protectSpam";
+import {otterguard_messageCreate} from "../../events/messageCreate";
+import {otterguard_onMessageUpdate} from "../../events/onMessageUpdate";
 
 /**
- * Initializes and configures the Otterguard protection mechanisms for the client.
+ * Initializes the Otterguard protection system for the provided client.
+ * This function sets up message monitoring and logs the activation status.
  *
- * @param {Client} client - The client instance that Otterguard is managing.
- * @return {Promise<void>} A promise that resolves once Otterguard has been successfully initialized and, if enabled, link protection has been configured.
+ * @param {Client} client - The client instance on which the Otterguard protection system will be initialized.
+ * @return {void} This method does not return any value.
  */
 export function otterbots_otterguard(client: Client): void {
     otterlogs.success("Otterguard is working!")
-    // Send a message to the moderators log channel
-    if (!process.env.MODERATION_CHANNEL_ID) {
-        otterlogs.warn('MODERATION_CHANNEL_ID is not set in the environment variables.');
-    }
-
-    if (otterguardConfig.protectLink) {
-        otterguard_protectLink(client)
-        otterlogs.debug("Otterguard: Link protection is enabled!")
-    }
-    if (otterguardConfig.protectScam) {
-        otterguard_protectScam(client)
-        otterlogs.debug("Otterguard: Scam protection is enabled!")
-    }
-    if (otterguardConfig.protectSpam) {
-        otterguard_protectSpam(client)
-        otterlogs.debug("Otterguard: Spam protection is enabled!")
-    }
+    otterguard_messageCreate(client).then(() => otterlogs.debug("Otterguard protection : messageCreate is enabled!"))
+    otterguard_onMessageUpdate(client).then(() => otterlogs.debug("Otterguard protection : messageUpdate is enabled!"))
 
 }
 

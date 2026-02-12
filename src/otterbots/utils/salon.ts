@@ -1,4 +1,19 @@
-import {Client, Colors, Guild, PermissionFlagsBits, ChannelType} from "discord.js";
+import {
+    CategoryChannel,
+    ChannelType,
+    Client,
+    Colors,
+    ForumChannel,
+    Guild,
+    MediaChannel,
+    NewsChannel,
+    PermissionFlagsBits,
+    PrivateThreadChannel,
+    PublicThreadChannel,
+    StageChannel,
+    TextChannel,
+    VoiceChannel
+} from "discord.js";
 import {otterlogs} from "./otterlogs";
 import {botSalon, salonCategory} from "../../app/config/salon";
 import fs from "fs";
@@ -17,9 +32,9 @@ import fs from "fs";
  */
 type JsonSalonType = {
     name: string;
-    categoryName: string;
+    categoryName?: string;
     id: string;
-    webhook: string;
+    webhook?: string;
 }
 
 /**
@@ -30,6 +45,9 @@ type JsonSalonType = {
  */
 export async function otterBots_initSalon(client: Client): Promise<void> {
     client.on('clientReady', async (): Promise<void> => {
+        // Ensure channels.json exists
+        await createDefaultJson()
+
         try {
             const channelNames: JsonSalonType[] = [];
             // Names of channels to create
@@ -44,7 +62,7 @@ export async function otterBots_initSalon(client: Client): Promise<void> {
             // Server ID
             const guildId = process.env.DISCORD_GUILD_ID;
             if (!guildId) {
-                otterlogs.error("❌ GuildId not found");
+                otterlogs.error("GuildId not found");
                 return;
             }
 
@@ -55,7 +73,7 @@ export async function otterBots_initSalon(client: Client): Promise<void> {
                 // Get the guild
                 const guild: Guild | undefined = client.guilds.cache.get(guildId);
                 if (!guild) {
-                    otterlogs.error(`❌ Guild not found (ID: ${guildId})`);
+                    otterlogs.error(`Guild not found (ID: ${guildId})`);
                     return;
                 }
 
@@ -106,6 +124,7 @@ export async function otterBots_initSalon(client: Client): Promise<void> {
 
                     // Creates channels in this category
                     for (const salon of botSalon) {
+                        let channelData: JsonSalonType = {name: "", id: "", webhook: ""};
                         if (!channelsDiscord.includes(salon.name)) {
                             const newChannel = await guild.channels.create({
                                 name: salon.name,
@@ -125,9 +144,6 @@ export async function otterBots_initSalon(client: Client): Promise<void> {
                             salon.channelId = newChannel.id;
                             otterlogs.success(`Channel "${salon.name}" created with ID: ${newChannel.id}!`);
 
-                            // Ensure channels.json exists
-                            await createDefaultJson()
-
                             // Create a webhook if enabled
                             let webhookUrl = "";
                             if (salon.webhook === true) {
@@ -140,14 +156,24 @@ export async function otterBots_initSalon(client: Client): Promise<void> {
                             }
 
                             // Update channels.json with new channel info
-                            const channelData = {...JSON.parse(fs.readFileSync('channels.json', 'utf8')),
+                            channelData = {...JSON.parse(fs.readFileSync('channels.json', 'utf8')),
                                 [salon.alias]: {name: salon.name, id: newChannel.id, webhook: webhookUrl}
                             };
 
-                            // Write updated data back to channels.json
-                            fs.writeFileSync('channels.json', JSON.stringify(channelData, null, 2));
-                            otterlogs.debug("Channels updated in channels.json");
+                        } else {
+                            // Update channels.json with the actuel channel info
+                            const actualChannel = guild.channels.cache.find(channel => channel.name === salon.name);
+
+                            // If channel not found, skip it
+                            if (!actualChannel) { continue }
+
+                            // Update channels.json with new channel info
+                            channelData = {...JSON.parse(fs.readFileSync('channels.json', 'utf8')),
+                                [salon.alias]: {name: salon.name, id: actualChannel.id, webhook: await fetchWebhook(actualChannel)}
+                            };
                         }
+                        // Write updated data back to channels.json
+                        fs.writeFileSync('channels.json', JSON.stringify(channelData, null, 2));
                     }
                 }
             } catch (error) {
@@ -157,6 +183,26 @@ export async function otterBots_initSalon(client: Client): Promise<void> {
             otterlogs.error(`Unable to execute OnReady event: ${error}`);
         }
     });
+}
+
+/**
+ * Retrieves the first webhook URL for a specific channel.
+ * @param actualChannel
+ */
+async function fetchWebhook(actualChannel: CategoryChannel | NewsChannel | StageChannel | TextChannel | PublicThreadChannel<boolean> | PrivateThreadChannel | VoiceChannel | ForumChannel | MediaChannel): Promise<string> {
+    try {
+        const webhooks = await (actualChannel as TextChannel).fetchWebhooks();
+        const firstWebhook = webhooks.first();
+
+        if (firstWebhook) {
+            return firstWebhook.url;
+        } else {
+            return "";
+        }
+    } catch (err) {
+        otterlogs.error(`Erreur lors de la récupération du webhook du salon ${actualChannel.name} : ${err}`);
+        return ""
+    }
 }
 
 /**
@@ -189,7 +235,6 @@ async function createDefaultJson(): Promise<void> {
     try {
         if (!fs.existsSync('channels.json')) {
             fs.writeFileSync('channels.json', JSON.stringify({}, null, 2), 'utf8');
-            otterlogs.debug('Channels file `channels.json` created by default');
         }
     } catch (error) {
         otterlogs.error(`Error ensuring channels.json: ${error}`);
