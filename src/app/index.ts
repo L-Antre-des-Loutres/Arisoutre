@@ -10,7 +10,7 @@ bot.setActivity("watching", " Watching: Ottergames")
 bot.startOtterGuard()
 
 // Start tasks (if you not use tasks, you can delete this) true = run tasks on start
-bot.initTask(true)
+bot.initTask()
 
 
 
