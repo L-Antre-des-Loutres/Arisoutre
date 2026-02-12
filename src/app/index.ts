@@ -1,5 +1,6 @@
 import {Otterbots} from "../otterbots";
 import {Client} from "discord.js";
+import {taskOnStart} from "./config/task";
 
 // Get bot instance
 const bot = new Otterbots();
@@ -11,6 +12,7 @@ bot.startOtterGuard()
 
 // Start tasks (if you not use tasks, you can delete this) true = run tasks on start
 bot.initTask()
+taskOnStart()
 
 
 
