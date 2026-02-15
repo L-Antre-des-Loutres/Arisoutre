@@ -43,6 +43,9 @@ export async function otterguard_protectLink(client: Client, message: Message) {
                     });
 
                     // Send a message to the moderators log channel
+                    if (!process.env.MODERATION_CHANNEL_ID) {
+                        otterlogs.warn('MODERATION_CHANNEL_ID is not set in the environment variables.');
+                    }
                     const modLogChannel = await client.channels.fetch(process.env.MODERATION_CHANNEL_ID!) as TextChannel;
                     if (modLogChannel && modLogChannel.isTextBased()) {
                         const title = process.env.BOT_LANGUAGE?.toLowerCase() === "fr" ?
@@ -90,6 +93,9 @@ export async function otterguard_protectLink(client: Client, message: Message) {
                     });
 
                     // Send a message to the moderators log channel
+                    if (!process.env.MODERATION_CHANNEL_ID) {
+                        otterlogs.warn('MODERATION_CHANNEL_ID is not set in the environment variables.');
+                    }
                     const modLogChannel = await client.channels.fetch(process.env.MODERATION_CHANNEL_ID!) as TextChannel;
                     if (modLogChannel && modLogChannel.isTextBased()) {
                         const title = process.env.BOT_LANGUAGE?.toLowerCase() === "fr" ?
@@ -138,6 +144,9 @@ export async function otterguard_protectLink(client: Client, message: Message) {
                         });
 
                         // Send a message to the moderators log channel
+                        if (!process.env.MODERATION_CHANNEL_ID) {
+                            otterlogs.warn('MODERATION_CHANNEL_ID is not set in the environment variables.');
+                        }
                         const modLogChannel = await client.channels.fetch(process.env.MODERATION_CHANNEL_ID!) as TextChannel;
                         if (modLogChannel && modLogChannel.isTextBased()) {
                             const title = process.env.BOT_LANGUAGE?.toLowerCase() === "fr" ?
