@@ -24,31 +24,36 @@ module.exports = {
                 await guild.channels.fetch(channelModeratorId) as TextChannel;
             if (!channel) return otterlogs.error('Unable to retrieve moderator message channel');
 
-            let userInfo: UtilisateursDiscordType | undefined = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getByDiscordId", member.user.id)
+            const userInfo: UtilisateursDiscordType | undefined = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getByDiscordId", member.user.id)
 
 
             if (userInfo) {
                 await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-updateDataSuppressionDate", {discord_id: member.user.id});
-            } else {
-                // On génére des données minimales pour l'utilisateur afin d'avoir un historique de sa suppression
-                await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-updateDataSuppressionDate", {
-                    avatar_url: member.user.displayAvatarURL(),
-                    delete_date: new Date().toISOString(),
-                    first_activity: new Date().toISOString(),
-                    id: 0,
-                    last_activity: new Date().toISOString(),
-                    nb_message: 0,
-                    roles: [],
-                    tag_discord: member.user.tag,
-                    vocal_time: 0,
-                    discord_id: member.user.id,
-                    pseudo_discord: member.user.username,
-                    join_date_discord: member.joinedAt ? member.joinedAt.toISOString() : undefined
-                });
-                userInfo = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getByDiscordId", member.user.id);
-            }
 
-            await channel.send({embeds: [await embed_guildMemberRemove(userInfo)]})
+                // On envoie son message de départ
+                await channel.send({embeds: [await embed_guildMemberRemove(userInfo)]})
+
+            } else {
+                const userInfoNoRegister: UtilisateursDiscordType = {
+                    avatar_url: member.user.displayAvatarURL({size: 256}) || "",
+                    delete_date: new Date().toISOString(),
+                    discord_id: member.user.id,
+                    id: 0,
+                    join_date_discord: member.joinedAt?.toISOString() || undefined,
+                    nb_message: 0,
+                    pseudo_discord: member.user.username || member.user.displayName || "",
+                    roles: member.roles.cache
+                        .filter(role => role.id !== guild.id)
+                        .map(role => ({
+                            id: role.id,
+                            name: role.name,
+                            color: role.hexColor
+                        })),
+                    tag_discord: member.user.tag || `${member.user.username}#${member.user.discriminator}`,
+                    vocal_time: 0
+                }
+                await channel.send({embeds: [await embed_guildMemberRemove(userInfoNoRegister)]})
+            }
 
         } catch (error) {
             otterlogs.error('Error while sending leave message: ' + error)
