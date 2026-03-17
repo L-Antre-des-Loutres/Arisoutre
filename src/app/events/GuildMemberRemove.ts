@@ -24,7 +24,7 @@ module.exports = {
                 await guild.channels.fetch(channelModeratorId) as TextChannel;
             if (!channel) return otterlogs.error('Unable to retrieve moderator message channel');
 
-            let userInfo: UtilisateursDiscordType | undefined = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getByDiscordId", member.user.id)
+            const userInfo: UtilisateursDiscordType | undefined = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getByDiscordId", member.user.id)
 
 
             if (userInfo) {
