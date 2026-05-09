@@ -1,0 +1,18 @@
+services:
+  arisoutre-bot:
+    build: .
+    container_name: arisoutre-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Montage des fichiers de config pour pouvoir les modifier sans rebuild
+      - ./config:/app/config
+      # Montage des fichiers de cache générés par le bot pour la persistance
+      - ./otterlyApiRoutes.json:/app/otterlyApiRoutes.json
+      - ./authorizedDomains.json:/app/authorizedDomains.json
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
