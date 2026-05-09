@@ -1,14 +1,16 @@
 services:
-  arisoutre-bot:
+  arisoutre:
     build: .
-    container_name: arisoutre-bot
+    container_name: bot_discord-arisoutre
     restart: unless-stopped
     env_file:
       - .env
     volumes:
       # Montage des fichiers de config pour pouvoir les modifier sans rebuild
       - ./config:/app/config
-      # Montage des fichiers de cache générés par le bot pour la persistance
+      # Montage du dossier de cache pour la persistance des données OtterCache
+      - ./cache:/app/cache
+      # Montage des fichiers de routes et domaines
       - ./otterlyApiRoutes.json:/app/otterlyApiRoutes.json
       - ./authorizedDomains.json:/app/authorizedDomains.json
     logging:
