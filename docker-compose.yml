@@ -6,13 +6,10 @@ services:
     env_file:
       - .env
     volumes:
-      # Montage des fichiers de config pour pouvoir les modifier sans rebuild
+      # Montage des fichiers de config
       - ./config:/app/config
-      # Montage du dossier de cache pour la persistance des données OtterCache
+      # Montage du dossier de cache (persistance des données OtterCache)
       - ./cache:/app/cache
-      # Montage des fichiers de routes et domaines
-      - ./otterlyApiRoutes.json:/app/otterlyApiRoutes.json
-      - ./authorizedDomains.json:/app/authorizedDomains.json
     logging:
       driver: "json-file"
       options:
