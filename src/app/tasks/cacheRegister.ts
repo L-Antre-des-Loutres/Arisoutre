@@ -62,7 +62,9 @@ export async function cacheRegister(): Promise<void> {
 
             if (isUpdated) {
                 const date = new Date();
-                const day = String(new Date(date.getTime() - 86400000).getDate()).padStart(2, '0');
+                date.setDate(date.getDate() - 1); // On prend la date d'hier
+
+                const day = String(date.getDate()).padStart(2, '0');
                 const month = String(date.getMonth() + 1).padStart(2, '0');
                 const year = date.getFullYear();
 
@@ -90,15 +92,15 @@ export async function cacheRegister(): Promise<void> {
                 const result = await Otterlyapi.postDataByAlias("otr-utilisateursDiscordStats-create", item.stats);
                 if (result) {
                     successCount++;
-                    // Suppression du cache pour cet utilisateur UNIQUEMENT en cas de succès
-                    nbMessageCache.delete(item.discordId);
-                    vocalTimeCache.delete(item.discordId);
-                    textChannelCache.delete(item.discordId);
-                    voiceChannelCache.delete(item.discordId);
-                    vocalWithCache.delete(item.discordId);
                 } else {
                     failureCount++;
                 }
+                // Suppression du cache pour cet utilisateur dans tous les cas pour éviter l'accumulation
+                nbMessageCache.delete(item.discordId);
+                vocalTimeCache.delete(item.discordId);
+                textChannelCache.delete(item.discordId);
+                voiceChannelCache.delete(item.discordId);
+                vocalWithCache.delete(item.discordId);
             }
 
             if (failureCount === 0) {
@@ -107,6 +109,22 @@ export async function cacheRegister(): Promise<void> {
                 otterlogs.error(`Failed to upload stats for all ${failureCount} users.`);
             } else {
                 otterlogs.warn(`Partial success: Uploaded ${successCount} users, failed ${failureCount} users.`);
+            }
+        }
+
+        // Si on est le 1er du mois, on reset le temps vocal et le nombre de messages dans la BDD
+        if (new Date().getDate() === 1) {
+            otterlogs.log("Premier jour du mois : réinitialisation des statistiques mensuelles...");
+            const allUsers: UtilisateursDiscordType[] | undefined = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getAll");
+            if (allUsers) {
+                for (const user of allUsers) {
+                    await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-update", {
+                        id: user.id,
+                        vocal_time: 0,
+                        nb_message: 0
+                    });
+                }
+                otterlogs.success("Réinitialisation des statistiques mensuelles terminée.");
             }
         }
 
