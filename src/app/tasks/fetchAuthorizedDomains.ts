@@ -1,7 +1,14 @@
 import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
 import fs from "fs";
+import path from "path";
 import {AuthorizedDomainsType} from "../types/AuthorizedDomainsType";
+
+const AUTHORIZED_DOMAINS_FILE = 'authorizedDomains.json';
+
+function getFilePath(): string {
+    return path.join(process.cwd(), AUTHORIZED_DOMAINS_FILE);
+}
 
 export async function fetchAuthorizedDomains() {
     try {
@@ -9,7 +16,7 @@ export async function fetchAuthorizedDomains() {
 
         // On enregistre les domaines dans un fichier json
         if (authorizedDomains) {
-            const filePath = 'authorizedDomains.json'
+            const filePath = getFilePath();
 
             // Create empty JSON file if it doesn't exist
             if (!fs.existsSync(filePath)) {
@@ -28,7 +35,7 @@ export async function fetchAuthorizedDomains() {
 
 export function getAuthorizedDomains(): string[] | null {
     try {
-        const filePath = 'authorizedDomains.json'
+        const filePath = getFilePath();
 
         if (!fs.existsSync(filePath)) {
             otterlogs.warn('Authorized domains file does not exist')
