@@ -5,6 +5,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    extra_hosts:
+      - "otterlyapi.antredesloutres.fr:${API_PUBLIC_IP:-187.127.231.55}"
     volumes:
       # Montage des fichiers de config
       - ./config:/app/config
