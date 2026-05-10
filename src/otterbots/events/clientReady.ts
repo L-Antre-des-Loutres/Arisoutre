@@ -9,7 +9,7 @@ import {otterlogs} from "../utils/otterlogs";
  * @return {Promise<void>} A promise that resolves when the listener is successfully set up.
  */
 export async function otterBots_clientReady(client: Client) : Promise<void> {
-    client.on('clientReady', () => {
+    client.once('ready', () => {
         const now = new Date()
         otterlogs.success(`Bot is ready at ${now.toLocaleString()} for ${client.user?.tag}!`)
         otterlogs.debug("Bot is actually in dev mode (to switch to production mode, change NODE_ENV in .env file)")

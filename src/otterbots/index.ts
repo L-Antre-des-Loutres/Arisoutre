@@ -30,30 +30,31 @@ export class Otterbots {
     }
 
     // Lancement du bot
-    public start() {
+    public async start() {
         displayLogo(process.env.BOT_NAME);
 
-        this.client.login(process.env.BOT_TOKEN)
+        // Init OtterlyApiModule en premier (pour générer otterlyApiRoutes.json)
+        await this.initOtterlyApiModule()
 
         // Évènement du bot
-        this.clientReady()
-        this.interactionCreate()
+        await this.clientReady()
+        await this.interactionCreate()
 
         // Start handlers
-        this.commandHandler()
-        this.eventHandler()
+        await this.commandHandler()
+        await this.eventHandler()
 
         // Command test
-        this.testsCommands()
+        await this.testsCommands()
 
         // Start salons
-        this.initSalons()
+        await this.initSalons()
 
         // Start emote react
-        this.initEmoteReact()
+        await this.initEmoteReact()
 
-        // Init OtterlyApiModule
-        this.initOtterlyApiModule()
+        // Connexion au bot
+        await this.client.login(process.env.BOT_TOKEN)
     }
 
     public getClient() {
@@ -136,9 +137,9 @@ export class Otterbots {
     }
 
     // Init OtterlyApiModule
-    private initOtterlyApiModule(){
+    private async initOtterlyApiModule(){
         const otterlyApiModule = new Otterlyapi()
-        otterlyApiModule.init()
+        await otterlyApiModule.init()
     }
 
 }

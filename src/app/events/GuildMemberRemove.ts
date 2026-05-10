@@ -41,7 +41,7 @@ module.exports = {
                     id: 0,
                     join_date_discord: member.joinedAt?.toISOString() || undefined,
                     nb_message: 0,
-                    pseudo_discord: member.user.username || member.user.displayName || "",
+                    pseudo_discord: member.displayName,
                     roles: member.roles.cache
                         .filter(role => role.id !== guild.id)
                         .map(role => ({

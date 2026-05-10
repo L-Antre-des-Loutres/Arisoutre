@@ -51,10 +51,12 @@ export const tasks = [
     { name: "Refresh authorized domain cache", time: "* 4 * * *", task: async () => fetchAuthorizedDomains(), period: ""}
 ];
 
-export function taskOnStart() {
+export async function taskOnStart() {
+    // registerAllMember() s'enregistre sur l'événement 'clientReady'
     registerAllMember();
-    otterlyapi.init();
-    fetchAuthorizedDomains();
+
+    // fetchAuthorizedDomains() a besoin que les routes API soient chargées (déjà fait dans bot.start())
+    await fetchAuthorizedDomains();
 }
 
 

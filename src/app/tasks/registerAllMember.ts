@@ -43,6 +43,8 @@ export function registerAllMember() {
 
                     // Valeurs communes
                     const avatarUrl = member.user.displayAvatarURL({ extension: 'png', size: 512 });
+                    const joinDateDiscord = member.joinedAt?.toISOString();
+
                     const roles = JSON.stringify(member.roles.cache.map(role => ({
                         id: role.id,
                         name: role.name,
@@ -55,9 +57,10 @@ export function registerAllMember() {
                         if (!isBot && !hasNoData) {
                             await Otterlyapi.postDataByAlias("otr-utilisateursDiscord-create", {
                                 discord_id: member.user.id,
-                                pseudo_discord: member.user.username,
+                                pseudo_discord: member.displayName,
                                 tag_discord: member.user.tag,
                                 avatar_url: avatarUrl,
+                                join_date_discord: joinDateDiscord,
                                 roles: roles
                             });
                         }
@@ -70,9 +73,10 @@ export function registerAllMember() {
                         await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-update", {
                             id: user.id,
                             discord_id: member.user.id,
-                            pseudo_discord: member.user.username,
+                            pseudo_discord: member.displayName,
                             tag_discord: member.user.tag,
                             avatar_url: avatarUrl,
+                            join_date_discord: joinDateDiscord,
                             roles: roles
                         });
 

@@ -6,13 +6,15 @@ import {taskOnStart} from "./config/task";
 const bot = new Otterbots();
 
 // Start the bot
-bot.start();
-bot.setActivity("watching", " Watching: Ottergames")
-bot.startOtterGuard()
+(async () => {
+    await bot.start();
+    bot.setActivity("watching", " Watching: Ottergames")
+    bot.startOtterGuard()
 
-// Start tasks (if you not use tasks, you can delete this) true = run tasks on start
-bot.initTask()
-taskOnStart()
+    // Start tasks (if you not use tasks, you can delete this) true = run tasks on start
+    bot.initTask()
+    await taskOnStart()
+})();
 
 
 
