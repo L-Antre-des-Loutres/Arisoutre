@@ -29,9 +29,11 @@
     "node-cron": "^4.2.1",
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.2",
+    "pocketbase": "^0.26.9",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "@types/node-cron": "^3.0.11",
     "@typescript-eslint/eslint-plugin": "^8.46.0",
     "@typescript-eslint/parser": "^8.46.0",

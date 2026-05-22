@@ -13,6 +13,7 @@ import {otterbots_eventHandler} from "./handlers/eventHandler";
 import {otterbots_otterguard} from "./utils/otterguard/otterguard";
 import {otterbots_initTask} from "./utils/task";
 import {Otterlyapi} from "./utils/otterlyapi/otterlyapi";
+import {OtterHealthCheck} from "./utils/healthcheck/healthcheck";
 
 dotenv.config()
 
@@ -55,6 +56,9 @@ export class Otterbots {
 
         // Connexion au bot
         await this.client.login(process.env.BOT_TOKEN)
+
+        // Start health check server
+        OtterHealthCheck.start(this.client);
     }
 
     public getClient() {
