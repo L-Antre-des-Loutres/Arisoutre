@@ -12,6 +12,8 @@ services:
       - ./config:/app/config
       # Montage du dossier de cache (persistance des données OtterCache)
       - ./cache:/app/cache
+    ports:
+      - "9501:3000"
     logging:
       driver: "json-file"
       options:
