@@ -20,18 +20,16 @@
  * - `delete_date`: The date when the user's data was deleted, or null if the user is still active.
  */
 export type UtilisateursDiscordType = {
-    id: number
+    id: string
     discord_id: string
-    pseudo_discord: string
-    join_date_discord: string | undefined
-    first_activity?: string
-    last_activity?: string
-    nb_message: number
-    tag_discord: string
+    username: string
+    discord_tag: string
     avatar_url: string
-    vocal_time : number
     roles: Roles[]
-    delete_date: string | null;
+    joined_at: string | undefined
+    first_active_at?: string
+    last_active_at?: string
+    delete_at: string | null;
 }
 
 /**

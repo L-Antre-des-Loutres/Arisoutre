@@ -12,9 +12,9 @@
  * @property {Channel[]} text_channels - A list of text channels where the user has sent messages.
  */
 export type UtilisateursDiscordStatsType = {
-    id: number
-    id_utilisateur: number
-    nb_message: number
+    id: string
+    discord_user: string
+    message_count: number
     vocal_time: number
     date_stats: string
     voice_channels?: ChannelActivity[]
