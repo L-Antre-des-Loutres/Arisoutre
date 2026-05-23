@@ -5,6 +5,8 @@
  * related to a Discord user, including their identification, activity,
  * messages, roles, and other metadata.
  *
+ * @pocketbase {Collection} - discord_users
+ *
  * Fields:
  * - `id`: A unique numeric identifier for the user in the system.
  * - `discord_id`: The user's Discord ID as a string.

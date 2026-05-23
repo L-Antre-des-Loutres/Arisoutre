@@ -3,6 +3,8 @@
  *
  * @typedef {Object} UtilisateursDiscordStatsType
  *
+ * @pocketbase {Collection} - discord_user_stats
+ *
  * @property {number} id - The unique identifier for the stats entry.
  * @property {number} id_utilisateur - The unique identifier of the user.
  * @property {number} nb_message - The total number of messages sent by the user.
