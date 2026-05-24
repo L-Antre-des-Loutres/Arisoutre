@@ -1,106 +1,101 @@
 import {getClient} from "../index";
 import {hasNoDataRole} from "../utils/no_data";
-import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
+import {OtterPocketBase} from "../../otterbots/utils/pocketbase/pocketbase";
 import {UtilisateursDiscordType} from "../types/UtilisateursDiscordType";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
 
 const GUILD_ID = process.env.DISCORD_GUILD_ID; // L'Antre des Loutres
 
-export function registerAllMember() {
+export async function registerAllMember() {
     // On récupére le client du bot
     const client = getClient()
 
-    client.once('clientReady', async () => {
-        if (!client.user) {
-            console.error('Client user is not defined.');
-            return;
-        }
+    if (!client.user) {
+        otterlogs.error('Client user is not defined.');
+        return;
+    }
 
-        const guild = client.guilds.cache.get(GUILD_ID);
+    const guild = client.guilds.cache.get(GUILD_ID || "");
 
-        if (!guild) {
-            otterlogs.error(`Guild ${GUILD_ID} not found`);
-            return;
-        }
-            /**
-             * export type Roles = {
-             *     id: string;
-             *     name: string;
-             *     color: string;
-             * }
-             */
-            try {
-                // On récupère tous les membres de la guilde
-                const members = await guild.members.fetch();
+    if (!guild) {
+        otterlogs.error(`Guild ${GUILD_ID} not found`);
+        return;
+    }
 
-                for (const member of members.values()) {
+    otterlogs.log("Starting registration of all guild members...");
 
-                    const user: UtilisateursDiscordType | undefined =
-                        await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getByDiscordId", member.user.id);
+    try {
+        // On récupère tous les membres de la guilde
+        const members = await guild.members.fetch();
+        let registeredCount = 0;
+        let updatedCount = 0;
 
-                    const isBot = member.user.bot;
-                    const hasNoData = await hasNoDataRole(member);
+        for (const member of members.values()) {
+            const user: UtilisateursDiscordType | undefined =
+                await OtterPocketBase.execByAlias<UtilisateursDiscordType>("otr-utilisateursDiscord-getByDiscordId", `discord_id="${member.user.id}"`);
 
-                    // Valeurs communes
-                    const avatarUrl = member.user.displayAvatarURL({ extension: 'png', size: 512 });
-                    const joinDateDiscord = member.joinedAt?.toISOString();
+            const isBot = member.user.bot;
+            const hasNoData = await hasNoDataRole(member);
 
-                    const roles = JSON.stringify(member.roles.cache.map(role => ({
-                        id: role.id,
-                        name: role.name,
-                        color: role.hexColor
-                    })));
+            // Valeurs communes
+            const avatarUrl = member.user.displayAvatarURL({ extension: 'png', size: 512 });
+            const joinDateDiscord = member.joinedAt?.toISOString();
 
-                    // --- CAS 1 : L'utilisateur n'existe pas ---
-                    if (!user) {
+            const roles = JSON.stringify(member.roles.cache.map(role => ({
+                id: role.id,
+                name: role.name,
+                color: role.hexColor
+            })));
 
-                        if (!isBot && !hasNoData) {
-                            await Otterlyapi.postDataByAlias("otr-utilisateursDiscord-create", {
-                                discord_id: member.user.id,
-                                pseudo_discord: member.displayName,
-                                tag_discord: member.user.tag,
-                                avatar_url: avatarUrl,
-                                join_date_discord: joinDateDiscord,
-                                roles: roles
-                            });
-                        }
-
-                        continue;
-                    }
-
-                    // --- CAS 2 : L'utilisateur existe et n'a PAS le rôle no_data ---
-                    if (!hasNoData) {
-                        await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-update", {
-                            id: user.id,
-                            discord_id: member.user.id,
-                            pseudo_discord: member.displayName,
-                            tag_discord: member.user.tag,
-                            avatar_url: avatarUrl,
-                            join_date_discord: joinDateDiscord,
-                            roles: roles
-                        });
-
-                        await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-resetDataSuppressionDate", {
-                            discord_id: member.user.id,
-                        })
-
-                        continue;
-                    }
-
-                    // --- CAS 3 : L'utilisateur existe, a no_data et n'a PAS encore de date de suppression ---
-                    if (user.delete_date == null) {
-                        otterlogs.log(
-                            `L'utilisateur ${member.user.username} a le rôle no_data, suppression des données dans 30 jours.`
-                        );
-
-                        await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-updateDataSuppressionDate", {
-                            discord_id: member.user.id
-                        });
-                    }
+            // --- CAS 1 : L'utilisateur n'existe pas ---
+            if (!user) {
+                if (!isBot && !hasNoData) {
+                    await OtterPocketBase.execByAlias("otr-utilisateursDiscord-create", {
+                        discord_id: member.user.id,
+                        username: member.displayName,
+                        discord_tag: member.user.tag,
+                        avatar_url: avatarUrl,
+                        joined_at: joinDateDiscord,
+                        roles: roles
+                    });
+                    registeredCount++;
                 }
-
-            } catch (error) {
-                otterlogs.error(`Failed to fetch members for guild: ${guild.name} (${GUILD_ID})` + error);
+                continue;
             }
-    });
+
+            // --- CAS 2 : L'utilisateur existe et n'a PAS le rôle no_data ---
+            if (!hasNoData) {
+                await OtterPocketBase.execByAlias("otr-utilisateursDiscord-update", user.id, {
+                    discord_id: member.user.id,
+                    username: member.displayName,
+                    discord_tag: member.user.tag,
+                    avatar_url: avatarUrl,
+                    joined_at: joinDateDiscord,
+                    roles: roles
+                });
+
+                await OtterPocketBase.execByAlias("otr-utilisateursDiscord-resetDataSuppressionDate", user.id, {
+                    delete_at: null,
+                })
+
+                updatedCount++;
+                continue;
+            }
+
+            // --- CAS 3 : L'utilisateur existe, a no_data et n'a PAS encore de date de suppression ---
+            if (user.delete_at == null) {
+                otterlogs.log(
+                    `L'utilisateur ${member.user.username} a le rôle no_data, suppression des données dans 30 jours.`
+                );
+
+                await OtterPocketBase.execByAlias("otr-utilisateursDiscord-updateDataSuppressionDate", user.id, {
+                    delete_at: new Date().toISOString()
+                });
+            }
+        }
+        otterlogs.success(`Finished registration: ${registeredCount} new users registered, ${updatedCount} users updated.`);
+
+    } catch (error) {
+        otterlogs.error(`Failed to fetch members for guild: ${guild.name} (${GUILD_ID})` + error);
+    }
 }

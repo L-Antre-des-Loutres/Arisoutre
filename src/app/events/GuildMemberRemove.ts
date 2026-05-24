@@ -1,7 +1,7 @@
 import {GuildMember, Events, TextChannel} from "discord.js";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
 import guilds from "../../../config/discordConfig.json";
-import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
+import {OtterPocketBase} from "../../otterbots/utils/pocketbase/pocketbase";
 import {UtilisateursDiscordType} from "../types/UtilisateursDiscordType";
 import {embed_guildMemberRemove} from "../embeds/events/guildMemberRemove/guildMemberRemove";
 
@@ -24,11 +24,11 @@ module.exports = {
                 await guild.channels.fetch(channelModeratorId) as TextChannel;
             if (!channel) return otterlogs.error('Unable to retrieve moderator message channel');
 
-            const userInfo: UtilisateursDiscordType | undefined = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getByDiscordId", member.user.id)
+            const userInfo: UtilisateursDiscordType | undefined = await OtterPocketBase.execByAlias<UtilisateursDiscordType>("otr-utilisateursDiscord-getByDiscordId", `discord_id="${member.user.id}"`)
 
 
             if (userInfo) {
-                await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-updateDataSuppressionDate", {discord_id: member.user.id});
+                await OtterPocketBase.execByAlias("otr-utilisateursDiscord-updateDataSuppressionDate", userInfo.id, { delete_at: new Date().toISOString() });
 
                 // On envoie son message de départ
                 await channel.send({embeds: [await embed_guildMemberRemove(userInfo)]})
@@ -36,12 +36,11 @@ module.exports = {
             } else {
                 const userInfoNoRegister: UtilisateursDiscordType = {
                     avatar_url: member.user.displayAvatarURL({size: 256}) || "",
-                    delete_date: new Date().toISOString(),
+                    delete_at: new Date().toISOString(),
                     discord_id: member.user.id,
-                    id: 0,
-                    join_date_discord: member.joinedAt?.toISOString() || undefined,
-                    nb_message: 0,
-                    pseudo_discord: member.displayName,
+                    id: "",
+                    joined_at: member.joinedAt?.toISOString() || undefined,
+                    username: member.displayName,
                     roles: member.roles.cache
                         .filter(role => role.id !== guild.id)
                         .map(role => ({
@@ -49,8 +48,7 @@ module.exports = {
                             name: role.name,
                             color: role.hexColor
                         })),
-                    tag_discord: member.user.tag || `${member.user.username}#${member.user.discriminator}`,
-                    vocal_time: 0
+                    discord_tag: member.user.tag || `${member.user.username}#${member.user.discriminator}`,
                 }
                 await channel.send({embeds: [await embed_guildMemberRemove(userInfoNoRegister)]})
             }

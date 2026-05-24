@@ -22,6 +22,7 @@ export type UtilisateursDiscordStatsType = {
     voice_channels?: ChannelActivity[]
     text_channels?: ChannelActivity[]
     vocal_with?: DiscordUser[]
+    date_stat: string
 }
 
 /**

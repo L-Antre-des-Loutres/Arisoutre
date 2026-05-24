@@ -1,4 +1,4 @@
-import { Otterlyapi } from "../../otterbots/utils/otterlyapi/otterlyapi";
+import { OtterPocketBase } from "../../otterbots/utils/pocketbase/pocketbase";
 import { discordActivityScore } from "../utils/activityScore";
 import { UtilisateursDiscordType } from "../types/UtilisateursDiscordType";
 import { otterlogs } from "../../otterbots/utils/otterlogs";
@@ -18,8 +18,8 @@ import { getClient } from "../index";
 export async function loutreAssureCheck() {
     try {
         // On récupére les utilisateurs Discord
-        const utilisateurs: UtilisateursDiscordType[] | undefined = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getAll")
-        const utilisateursStats: UtilisateursDiscordStatsType[] | undefined = await Otterlyapi.getDataByAlias("otr-utilisateursDiscordStats-getAll")
+        const utilisateurs: UtilisateursDiscordType[] | undefined = await OtterPocketBase.execByAlias<UtilisateursDiscordType[]>("otr-utilisateursDiscord-getAll")
+        const utilisateursStats: UtilisateursDiscordStatsType[] | undefined = await OtterPocketBase.execByAlias<UtilisateursDiscordStatsType[]>("otr-utilisateursDiscordStats-getAll")
 
         if (!utilisateurs || !utilisateursStats) {
             otterlogs.warn("Aucun utilisateur trouvé pour la vérification du score de loutre assuré.")
@@ -32,10 +32,10 @@ export async function loutreAssureCheck() {
         for (const utilisateur of utilisateurs) {
             if (!utilisateur.roles.some(role => role.id === roles.loutre_assure)
                 && utilisateur.roles.some(role => role.id === roles.loutre_nouvelle)
-                && !utilisateur.delete_date) {
+                && !utilisateur.delete_at) {
                 // On récupère les stats de l'utilisateur
-                const stats = utilisateursStats.filter(stat => stat.id_utilisateur === utilisateur.id)
-                const totalMessages = stats.reduce((sum, stat) => sum + stat.nb_message, 0)
+                const stats = utilisateursStats.filter(stat => stat.discord_user === utilisateur.id)
+                const totalMessages = stats.reduce((sum, stat) => sum + stat.message_count, 0)
                 const totalVocalTime = stats.reduce((sum, stat) => sum + stat.vocal_time, 0)
 
                 // On vérifie si le score d'activité est supérieur à 30
@@ -52,9 +52,9 @@ export async function loutreAssureCheck() {
 
                         await member.roles.add(roles.loutre_assure);
                         await member.roles.remove(roles.loutre_nouvelle);
-                        otterlogs.log(`L'utilisateur ${utilisateur.pseudo_discord} a obtenu le role Loutre assure automatiquement. (score d'activite superieur a 30)`);
+                        otterlogs.log(`L'utilisateur ${utilisateur.username} a obtenu le role Loutre assure automatiquement. (score d'activite superieur a 30)`);
                     } catch (error) {
-                        otterlogs.warn(`Impossible de trouver l'utilisateur ${utilisateur.pseudo_discord} ou la guilde (${guildId}): ${error}`);
+                        otterlogs.warn(`Impossible de trouver l'utilisateur ${utilisateur.username} ou la guilde (${guildId}): ${error}`);
                     }
                 }
             }

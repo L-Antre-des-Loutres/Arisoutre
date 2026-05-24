@@ -1,10 +1,11 @@
 import {Events, GuildMember, roleMention, TextChannel, userMention} from "discord.js";
 import guilds from "../../../config/discordConfig.json";
-import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
+import {OtterPocketBase} from "../../otterbots/utils/pocketbase/pocketbase";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
 import {embed_analyze} from "../embeds/events/utils/analyzeEmbed";
 import {embed_welcome} from "../embeds/events/guildMemberAdd/welcomeEmbed";
 import {hasNoDataRole} from "../utils/no_data";
+import {UtilisateursDiscordType} from "../types/UtilisateursDiscordType";
 
 module.exports = {
     name: Events.GuildMemberAdd,
@@ -50,11 +51,11 @@ module.exports = {
                 })(),
                 (async () => {
                     try {
-                        const user = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getByDiscordId", member.user.id);
+                        const user = await OtterPocketBase.execByAlias<UtilisateursDiscordType>("otr-utilisateursDiscord-getByDiscordId", `discord_id="${member.user.id}"`);
                         // On vérifie que l'utilisateur n'as pas le rôle no_data avant de l'enregistrer en BDD
                         if (user && !await hasNoDataRole(member)) {
-                            await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-resetDataSuppressionDate", {
-                                discord_id: member.user.id,
+                            await OtterPocketBase.execByAlias("otr-utilisateursDiscord-resetDataSuppressionDate", user.id, {
+                                delete_at: null,
                             })
                         }
                     } catch (error) {
