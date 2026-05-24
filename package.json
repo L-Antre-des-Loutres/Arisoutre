@@ -26,6 +26,7 @@
     "discord.js": "^14.23.2",
     "dotenv": "^17.2.3",
     "figlet": "^1.9.3",
+    "js-yaml": "^4.1.1",
     "node-cron": "^4.2.1",
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.2",
