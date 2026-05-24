@@ -131,9 +131,15 @@ export class OtterPocketBase {
 
             return result as T;
         } catch (error) {
-            if (error instanceof ClientResponseError && error.status === 404) {
-                // Expected behavior when checking if something exists (e.g. getFirstListItem, getOne)
-                return undefined;
+            if (error instanceof ClientResponseError) {
+                if (error.status === 404) {
+                    // Expected behavior when checking if something exists (e.g. getFirstListItem, getOne)
+                    return undefined;
+                }
+                if (error.status === 0) {
+                    otterlogs.error(`OtterPocketBase: Network or timeout error (status 0) for alias "${alias}". The request was likely aborted or the server is unreachable.`);
+                    return undefined;
+                }
             }
             otterlogs.error(`OtterPocketBase: Error executing alias "${alias}": ${error}`);
             return undefined;

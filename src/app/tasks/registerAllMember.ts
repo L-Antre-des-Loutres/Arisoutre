@@ -25,14 +25,17 @@ export async function registerAllMember() {
     otterlogs.log("Starting registration of all guild members...");
 
     try {
+        // Optimisation : On récupère tous les utilisateurs existants en une fois
+        const allUsers: UtilisateursDiscordType[] = await OtterPocketBase.execByAlias<UtilisateursDiscordType[]>("otr-utilisateursDiscord-getAll") || [];
+        const userMap = new Map(allUsers.map(u => [u.discord_id, u]));
+
         // On récupère tous les membres de la guilde
         const members = await guild.members.fetch();
         let registeredCount = 0;
         let updatedCount = 0;
 
         for (const member of members.values()) {
-            const user: UtilisateursDiscordType | undefined =
-                await OtterPocketBase.execByAlias<UtilisateursDiscordType>("otr-utilisateursDiscord-getByDiscordId", `discord_id="${member.user.id}"`);
+            const user = userMap.get(member.user.id);
 
             const isBot = member.user.bot;
             const hasNoData = await hasNoDataRole(member);
@@ -65,20 +68,24 @@ export async function registerAllMember() {
 
             // --- CAS 2 : L'utilisateur existe et n'a PAS le rôle no_data ---
             if (!hasNoData) {
-                await OtterPocketBase.execByAlias("otr-utilisateursDiscord-update", user.id, {
-                    discord_id: member.user.id,
-                    username: member.displayName,
-                    discord_tag: member.user.tag,
-                    avatar_url: avatarUrl,
-                    joined_at: joinDateDiscord,
-                    roles: roles
-                });
+                // Vérification si une mise à jour est réellement nécessaire pour limiter les requêtes
+                const needsUpdate = user.username !== member.displayName || 
+                                   user.discord_tag !== member.user.tag || 
+                                   user.avatar_url !== avatarUrl ||
+                                   user.roles !== roles;
 
-                await OtterPocketBase.execByAlias("otr-utilisateursDiscord-resetDataSuppressionDate", user.id, {
-                    delete_at: null,
-                })
-
-                updatedCount++;
+                if (needsUpdate || user.delete_at !== null) {
+                    await OtterPocketBase.execByAlias("otr-utilisateursDiscord-update", user.id, {
+                        discord_id: member.user.id,
+                        username: member.displayName,
+                        discord_tag: member.user.tag,
+                        avatar_url: avatarUrl,
+                        joined_at: joinDateDiscord,
+                        roles: roles,
+                        delete_at: null // Reset suppression date
+                    });
+                    updatedCount++;
+                }
                 continue;
             }
 
