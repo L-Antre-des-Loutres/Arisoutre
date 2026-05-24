@@ -26,14 +26,11 @@
 //      expression = "* * * * *"
 
 
-import { Otterlyapi } from "../../otterbots/utils/otterlyapi/otterlyapi";
 import { cacheRegister } from "../tasks/cacheRegister";
 import { registerAllMember } from "../tasks/registerAllMember";
 import {loutreAssureCheck} from "../tasks/loutreAssureCheck";
 import {purgeRole} from "../tasks/purgeRole";
 import {fetchAuthorizedDomains} from "../tasks/fetchAuthorizedDomains";
-
-const otterlyapi = new Otterlyapi();
 
 /**
  * Represents a list of scheduled tasks with their respective configurations.
@@ -43,21 +40,17 @@ const otterlyapi = new Otterlyapi();
  * - `task`: An asynchronous function to be executed at the specified time.
  */
 export const tasks = [
-    { name: "Register Cache on BDD", time: "0 4 * * *", task: async () => cacheRegister(), period: "" },
+    { name: "Register Cache on BDD", time: "0 0,12 * * *", task: async () => cacheRegister(), period: "" },
     { name: "Register All discord members ", time: "0 4 * * *", task: async () => registerAllMember(), period: "" },
-    { name: "Refresh API routes cache ", time: "0 4 * * *", task: async () => otterlyapi.init(true), period: "" },
     { name: "Loutre assure Check ", time: "30 4 * * *", task: async () => loutreAssureCheck(), period: "" },
     { name: "Purge role ", time: "30 4 * * *", task: async () => purgeRole(), period: ""},
     { name: "Refresh authorized domain cache", time: "* 4 * * *", task: async () => fetchAuthorizedDomains(), period: ""}
 ];
 
 export async function taskOnStart() {
-    // registerAllMember() s'enregistre sur l'événement 'clientReady'
-    registerAllMember();
+    // On attend que l'enregistrement de tous les membres soit terminé avant de continuer
+    await registerAllMember();
 
     // fetchAuthorizedDomains() a besoin que les routes API soient chargées (déjà fait dans bot.start())
     await fetchAuthorizedDomains();
 }
-
-
-

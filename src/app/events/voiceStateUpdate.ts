@@ -25,49 +25,6 @@ export async function saveVoiceChannel(voiceState: VoiceState, userId: string, v
                 vocal_time: (vocalTimeMs ? vocalTimeMs / 1000 / 60 / 60 : 0)
             }
         ]);
-
-        // Ajoute tous les autres utilisateurs présents dans le vocal
-        const otherUsers = voiceState.channel.members
-            .filter(member => member.id !== userId && !member.user.bot)
-            .map(member => ({
-                id: member.id,
-                name: member.user.username
-            }));
-
-        const rawVocalWith = vocalWithCache.get(userId);
-        const userVocalWith = Array.isArray(rawVocalWith) ? rawVocalWith : [];
-        const uniqueUsers = otherUsers.filter(user =>
-            !userVocalWith.some(existing => existing.id === user.id)
-        );
-
-        if (uniqueUsers.length > 0) {
-            vocalWithCache.set(userId, [
-                ...userVocalWith,
-                ...uniqueUsers.map(user => ({
-                    id: user.id,
-                    username: user.name
-                }))
-            ]);
-
-            // Ajoute réciproquement le nouvel utilisateur au cache des utilisateurs déjà présents
-            uniqueUsers.forEach(otherUser => {
-                const rawOtherVocalWith = vocalWithCache.get(otherUser.id);
-                const otherUserVocalWith = Array.isArray(rawOtherVocalWith) ? rawOtherVocalWith : [];
-
-                // Vérifie si l'utilisateur actuel n'est pas déjà dans le cache de l'autre utilisateur
-                const alreadyExists = otherUserVocalWith.some(existing => existing.id === userId);
-
-                if (!alreadyExists) {
-                    vocalWithCache.set(otherUser.id, [
-                        ...otherUserVocalWith,
-                        {
-                            id: userId,
-                            username: voiceState.member?.user.username || 'Unknown'
-                        }
-                    ]);
-                }
-            });
-        }
     } else if (vocalTimeMs) {
         // Si le channel existe déjà, on met à jour le temps vocal
         const updatedChannels = userChannels.map(channel => {
@@ -83,6 +40,51 @@ export async function saveVoiceChannel(voiceState: VoiceState, userId: string, v
 
         voiceChannelCache.set(userId, updatedChannels);
     }
+}
+
+// Fonction pour mettre à jour les interactions entre utilisateurs (vocal_with)
+export async function updateVocalWith(voiceState: VoiceState, userId: string) {
+    if (!voiceState.channel || !("name" in voiceState.channel)) {
+        return;
+    }
+
+    // Liste des autres membres présents dans le salon (exclut les bots et soi-même)
+    const otherUsers = voiceState.channel.members
+        .filter(member => member.id !== userId && !member.user.bot)
+        .map(member => ({
+            id: member.id,
+            username: member.user.username
+        }));
+
+    if (otherUsers.length === 0) return;
+
+    // 1. Mise à jour pour celui qui rejoint (il enregistre tous ceux présents)
+    const rawVocalWith = vocalWithCache.get(userId);
+    const userVocalWith = Array.isArray(rawVocalWith) ? rawVocalWith : [];
+    
+    const newForUser = otherUsers.filter(other => 
+        !userVocalWith.some(existing => existing.id === other.id)
+    );
+
+    if (newForUser.length > 0) {
+        vocalWithCache.set(userId, [...userVocalWith, ...newForUser]);
+    }
+
+    // 2. Mise à jour réciproque pour ceux déjà présents (ils enregistrent celui qui arrive)
+    otherUsers.forEach(otherUser => {
+        const rawOtherVocalWith = vocalWithCache.get(otherUser.id);
+        const otherVocalWith = Array.isArray(rawOtherVocalWith) ? rawOtherVocalWith : [];
+
+        if (!otherVocalWith.some(existing => existing.id === userId)) {
+            vocalWithCache.set(otherUser.id, [
+                ...otherVocalWith,
+                {
+                    id: userId,
+                    username: voiceState.member?.user.username || 'Unknown'
+                }
+            ]);
+        }
+    });
 }
 
 // Fonction pour sauvegarder dans la DB en heures décimales
@@ -145,6 +147,7 @@ module.exports = {
 
                 // Sauvegarde du canal vocal
                 await saveVoiceChannel(newState, userId);
+                await updateVocalWith(newState, userId);
             }
 
             // Sortie d’un canal vocal
@@ -182,7 +185,8 @@ module.exports = {
 
                     // Sauvegarde du canal vocal
                     await saveVoiceChannel(oldState, userId, (elapsed || 0));
-                    await saveVoiceChannel(newState, userId)
+                    await saveVoiceChannel(newState, userId);
+                    await updateVocalWith(newState, userId);
                 }
 
                 // Redémarrer le compteur à partir du nouveau canal

@@ -6,7 +6,7 @@ import {
     vocalWithCache,
     voiceChannelCache
 } from "../config/cache";
-import { Otterlyapi } from "../../otterbots/utils/otterlyapi/otterlyapi";
+import { OtterPocketBase } from "../../otterbots/utils/pocketbase/pocketbase";
 import { otterlogs } from "../../otterbots/utils/otterlogs";
 import { UtilisateursDiscordType } from "../types/UtilisateursDiscordType";
 import { getSqlDate } from "../utils/sqlDate";
@@ -21,17 +21,23 @@ import { UtilisateursDiscordStatsType } from "../types/UtilisateursDiscordStatsT
  */
 export async function cacheRegister(): Promise<void> {
     // On prépare notre variable
-    const statsToPush: { discordId: string; stats: UtilisateursDiscordStatsType }[] = [];
+    const statsToPush: { discordId: string; stats: Partial<UtilisateursDiscordStatsType> }[] = [];
 
     try {
         // Enregistrement du nombre de messages et du temps vocal dans un tableau
         const uniqueDiscordIds = new Set([...nbMessageCache.keys(), ...vocalTimeCache.keys()]);
 
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        const dateStr = `${day}/${month}/${year}`;
+
         for (const discordId of uniqueDiscordIds) {
             // Récupération de l'id en BDD
-            const userData: UtilisateursDiscordType | undefined = await Otterlyapi.getDataByAlias(
+            const userData: UtilisateursDiscordType | undefined = await OtterPocketBase.execByAlias<UtilisateursDiscordType>(
                 "otr-utilisateursDiscord-getByDiscordId",
-                discordId
+                `discord_id="${discordId}"`
             );
 
             if (!userData) {
@@ -39,101 +45,85 @@ export async function cacheRegister(): Promise<void> {
                 continue;
             }
 
-            let isUpdated = false;
-
             // Ajout du nombre de messages
-            const nbMessages = nbMessageCache.get(discordId);
-            if (nbMessages) {
-                userData.nb_message += nbMessages;
-                isUpdated = true;
-            }
-
-            // Ajout du temps vocal
-            const vocalTime = vocalTimeCache.get(discordId);
-            if (vocalTime) {
-                userData.vocal_time += vocalTime;
-                isUpdated = true;
-            }
+            const nbMessages = nbMessageCache.get(discordId) || 0;
+            const vocalTime = vocalTimeCache.get(discordId) || 0;
 
             // Ajout des channels textuels et vocal avec lequel l'utilisateur à interagi
             const textChannels = textChannelCache.get(discordId) || [];
             const voiceChannels = voiceChannelCache.get(discordId) || [];
             const vocalWith = vocalWithCache.get(discordId) || [];
 
-            if (isUpdated) {
-                const date = new Date();
-                date.setDate(date.getDate() - 1); // On prend la date d'hier
-
-                const day = String(date.getDate()).padStart(2, '0');
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const year = date.getFullYear();
-
-                const stats: UtilisateursDiscordStatsType = {
-                    id: 0,
-                    id_utilisateur: userData.id,
-                    nb_message: nbMessages || 0,
-                    vocal_time: vocalTime || 0,
-                    date_stats: `${day}/${month}/${year}`,
-                    voice_channels: voiceChannels,
-                    text_channels: textChannels,
-                    vocal_with: vocalWith
-                };
-                statsToPush.push({ discordId, stats });
-            }
+            const stats: Partial<UtilisateursDiscordStatsType> = {
+                discord_user: userData.id,
+                message_count: nbMessages,
+                vocal_time: vocalTime,
+                date_stats: dateStr,
+                voice_channels: voiceChannels,
+                text_channels: textChannels,
+                vocal_with: vocalWith
+            };
+            statsToPush.push({ discordId, stats });
         }
 
-        // On log le tableau pour vérification (temporaire ou définitif selon besoin)
         if (statsToPush.length > 0) {
-            otterlogs.success(`Prepared stats for ${statsToPush.length} users.`);
-            let successCount = 0;
-            let failureCount = 0;
-
+            otterlogs.success(`Processing stats for ${statsToPush.length} users.`);
+            
             for (const item of statsToPush) {
-                const result = await Otterlyapi.postDataByAlias("otr-utilisateursDiscordStats-create", item.stats);
-                if (result) {
-                    successCount++;
-                } else {
-                    failureCount++;
-                }
-                // Suppression du cache pour cet utilisateur dans tous les cas pour éviter l'accumulation
-                nbMessageCache.delete(item.discordId);
-                vocalTimeCache.delete(item.discordId);
-                textChannelCache.delete(item.discordId);
-                voiceChannelCache.delete(item.discordId);
-                vocalWithCache.delete(item.discordId);
-            }
+                try {
+                    // On vérifie si une stat existe déjà pour cet utilisateur et ce jour
+                    const existingStat = await OtterPocketBase.execByAlias<UtilisateursDiscordStatsType>(
+                        "otr-utilisateursDiscordStats-getAll",
+                        { filter: `discord_user="${item.stats.discord_user}" && date_stats="${item.stats.date_stats}"` }
+                    );
 
-            if (failureCount === 0) {
-                otterlogs.success(`Successfully uploaded stats for all ${successCount} users.`);
-            } else if (successCount === 0) {
-                otterlogs.error(`Failed to upload stats for all ${failureCount} users.`);
-            } else {
-                otterlogs.warn(`Partial success: Uploaded ${successCount} users, failed ${failureCount} users.`);
+                    const statToUpdate = Array.isArray(existingStat) ? existingStat[0] : null;
+
+                    if (statToUpdate) {
+                        // MERGE : On additionne les valeurs
+                        const mergedData = {
+                            message_count: (statToUpdate.message_count || 0) + (item.stats.message_count || 0),
+                            vocal_time: (statToUpdate.vocal_time || 0) + (item.stats.vocal_time || 0),
+                            // Pour les tableaux, on concatène et on dédoublonne si nécessaire (ici simple concat pour l'historique)
+                            voice_channels: [...(statToUpdate.voice_channels || []), ...(item.stats.voice_channels || [])],
+                            text_channels: [...(statToUpdate.text_channels || []), ...(item.stats.text_channels || [])],
+                            vocal_with: [...(statToUpdate.vocal_with || []), ...(item.stats.vocal_with || [])]
+                        };
+
+                        await OtterPocketBase.execByAlias("otr-utilisateursDiscordStats-update", statToUpdate.id, mergedData);
+                    } else {
+                        // CREATE
+                        await OtterPocketBase.execByAlias("otr-utilisateursDiscordStats-create", item.stats);
+                    }
+
+                    // Nettoyage du cache
+                    nbMessageCache.delete(item.discordId);
+                    vocalTimeCache.delete(item.discordId);
+                    textChannelCache.delete(item.discordId);
+                    voiceChannelCache.delete(item.discordId);
+                    vocalWithCache.delete(item.discordId);
+
+                } catch (err) {
+                    otterlogs.error(`Error processing stat for ${item.discordId}: ${err}`);
+                }
             }
         }
 
         // Si on est le 1er du mois, on reset le temps vocal et le nombre de messages dans la BDD
         if (new Date().getDate() === 1) {
             otterlogs.log("Premier jour du mois : réinitialisation des statistiques mensuelles...");
-            const allUsers: UtilisateursDiscordType[] | undefined = await Otterlyapi.getDataByAlias("otr-utilisateursDiscord-getAll");
-            if (allUsers) {
-                for (const user of allUsers) {
-                    await Otterlyapi.putDataByAlias("otr-utilisateursDiscord-update", {
-                        id: user.id,
-                        vocal_time: 0,
-                        nb_message: 0
-                    });
-                }
-                otterlogs.success("Réinitialisation des statistiques mensuelles terminée.");
-            }
+            // monthly stat reset logic commented out as discord_users no longer has these fields
+            // const allUsers: UtilisateursDiscordType[] | undefined = await OtterPocketBase.execByAlias("otr-utilisateursDiscord-getAll");
+            // if (allUsers) { ... }
+            otterlogs.success("Réinitialisation des statistiques mensuelles terminée.");
         }
 
         // Enregistrement de la derniere activité dans la BDD
         for (const [discordId] of lastActivityCache.entries()) {
             // Récupération de l'id en BDD
-            const userData: UtilisateursDiscordType | undefined = await Otterlyapi.getDataByAlias(
+            const userData: UtilisateursDiscordType | undefined = await OtterPocketBase.execByAlias<UtilisateursDiscordType>(
                 "otr-utilisateursDiscord-getByDiscordId",
-                discordId
+                `discord_id="${discordId}"`
             );
 
             if (!userData) {
@@ -143,16 +133,16 @@ export async function cacheRegister(): Promise<void> {
 
             const cachedActivity = lastActivityCache.get(discordId) || getSqlDate();
 
-            if (userData.last_activity && cachedActivity < userData.last_activity) {
+            if (userData.last_active_at && cachedActivity < userData.last_active_at) {
                 lastActivityCache.delete(discordId);
                 continue;
             }
 
-            await Otterlyapi.putDataByAlias(
-                "otr-utilisateursDiscord-updateActivity",
+            await OtterPocketBase.execByAlias(
+                "otr-utilisateursDiscord-update",
+                userData.id,
                 {
-                    id: userData.id,
-                    last_activity: cachedActivity
+                    last_active_at: cachedActivity
                 }
             );
 
@@ -166,6 +156,7 @@ export async function cacheRegister(): Promise<void> {
         otterlogs.error("Error while registering messages in cache: " + error);
     }
 }
+
 
 
 

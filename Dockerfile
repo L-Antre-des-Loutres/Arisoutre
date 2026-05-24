@@ -13,6 +13,7 @@ RUN npm ci
 # Copie du code source et des configurations
 COPY src ./src
 COPY config ./config
+COPY endpoint_alias.yaml ./endpoint_alias.yaml
 
 # Compilation TypeScript
 RUN npm run build
@@ -29,6 +30,7 @@ ENV NODE_ENV=production
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/config ./config
+COPY --from=builder /app/endpoint_alias.yaml ./endpoint_alias.yaml
 
 # Copie des assets (images, etc.) s'ils ne sont pas dans src (ils sont dans src/app/assets dans ce projet)
 # Note: tsc ne copie pas les fichiers non-TS, on les copie manuellement si besoin dans build

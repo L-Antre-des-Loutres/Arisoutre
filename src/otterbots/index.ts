@@ -12,7 +12,6 @@ import {otterbots_purgeCommand} from "./handlers/purgeCommand";
 import {otterbots_eventHandler} from "./handlers/eventHandler";
 import {otterbots_otterguard} from "./utils/otterguard/otterguard";
 import {otterbots_initTask} from "./utils/task";
-import {Otterlyapi} from "./utils/otterlyapi/otterlyapi";
 import {OtterHealthCheck} from "./utils/healthcheck/healthcheck";
 
 dotenv.config()
@@ -33,9 +32,6 @@ export class Otterbots {
     // Lancement du bot
     public async start() {
         displayLogo(process.env.BOT_NAME);
-
-        // Init OtterlyApiModule en premier (pour générer otterlyApiRoutes.json)
-        await this.initOtterlyApiModule()
 
         // Évènement du bot
         await this.clientReady()
@@ -138,12 +134,6 @@ export class Otterbots {
     // Initialize the emote react events
     private async initEmoteReact(client: Client = this.client): Promise<void> {
         await otterBots_initEmoteReact(client)
-    }
-
-    // Init OtterlyApiModule
-    private async initOtterlyApiModule(){
-        const otterlyApiModule = new Otterlyapi()
-        await otterlyApiModule.init()
     }
 
 }

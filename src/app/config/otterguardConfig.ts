@@ -8,7 +8,7 @@ import {getAuthorizedDomains} from "../tasks/fetchAuthorizedDomains";
  * @property {boolean} protectLink - Indicates whether link protection is enabled or disabled.
  */
 export const otterguardConfig: { [key: string]: boolean } = {
-    protectLink: true,
+    protectLink: false,
     protectScam: true,
     protectSpam: true,
 };

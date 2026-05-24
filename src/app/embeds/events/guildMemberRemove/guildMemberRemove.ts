@@ -4,16 +4,16 @@ import {UtilisateursDiscordType} from "../../../types/UtilisateursDiscordType";
 export async function embed_guildMemberRemove(
     utilisateursDiscord?: UtilisateursDiscordType
 ): Promise<EmbedBuilder> {
-    const pseudo = utilisateursDiscord?.pseudo_discord ?? "Loutre disparue";
+    const pseudo = utilisateursDiscord?.username ?? "Loutre disparue";
     const avatar = utilisateursDiscord?.avatar_url ?? null;
-    const joinDate = utilisateursDiscord?.join_date_discord
-        ? `<t:${Math.floor(new Date(utilisateursDiscord.join_date_discord).getTime() / 1000)}:R>`
+    const joinDate = utilisateursDiscord?.joined_at
+        ? `<t:${Math.floor(new Date(utilisateursDiscord.joined_at).getTime() / 1000)}:R>`
         : "Date inconnue";
 
     return new EmbedBuilder()
         .setColor(0x5865f2)
         .setAuthor({
-            name: utilisateursDiscord?.pseudo_discord ?? "Loutre disparue",
+            name: utilisateursDiscord?.username ?? "Loutre disparue",
             iconURL: utilisateursDiscord?.avatar_url ?? ""
         })
         .setTitle("Une loutre quitte l’antre...")
@@ -29,12 +29,12 @@ export async function embed_guildMemberRemove(
             },
             {
                 name: "📝 Nombre de messages",
-                value: utilisateursDiscord?.nb_message?.toString() ?? "0",
+                value: "Non disponible",
                 inline: true
             },
             {
                 name: "🎤 Temps en vocal",
-                value: utilisateursDiscord?.vocal_time?.toString() ?? "0",
+                value: "Non disponible",
                 inline: true
             }
         )

@@ -1,4 +1,4 @@
-import PocketBase from 'pocketbase';
+import PocketBase, { ClientResponseError } from 'pocketbase';
 import fs from 'fs';
 import yaml from 'js-yaml';
 import { PocketBaseAlias, PocketBaseConfig } from './modules/PocketBaseTypes';
@@ -36,12 +36,13 @@ export class OtterPocketBase {
                 return;
             }
 
-            OtterPocketBase.pb = new PocketBase(url);
+            const pbInstance = new PocketBase(url);
+            pbInstance.autoCancellation(false);
 
             if (email && password) {
                 try {
                     // Exclusive authentication via the '_superusers' collection (PocketBase v0.23+)
-                    await OtterPocketBase.pb.collection('_superusers').authWithPassword(email, password);
+                    await pbInstance.collection('_superusers').authWithPassword(email, password);
                     otterlogs.debug("OtterPocketBase: Successfully initialized via _superusers!");
                 } catch (error) {
                     otterlogs.error(`OtterPocketBase: Authentication failed (_superusers): ${error}`);
@@ -49,6 +50,9 @@ export class OtterPocketBase {
             } else {
                 otterlogs.debug("OtterPocketBase: Initialized in guest mode.");
             }
+
+            // We only set the static instance once it's fully ready/authenticated
+            OtterPocketBase.pb = pbInstance;
         } catch (error) {
             otterlogs.error(`OtterPocketBase: Error during initialization: ${error}`);
         }
@@ -58,13 +62,11 @@ export class OtterPocketBase {
      * Ensures the instance is initialized before any operation.
      */
     private static async ensureInitialized(): Promise<void> {
-        if (OtterPocketBase.pb) return;
-
         if (!OtterPocketBase.initPromise) {
             OtterPocketBase.initPromise = OtterPocketBase.init();
         }
 
-        return OtterPocketBase.initPromise;
+        await OtterPocketBase.initPromise;
     }
 
     /**
@@ -129,6 +131,10 @@ export class OtterPocketBase {
 
             return result as T;
         } catch (error) {
+            if (error instanceof ClientResponseError && error.status === 404) {
+                // Expected behavior when checking if something exists (e.g. getFirstListItem, getOne)
+                return undefined;
+            }
             otterlogs.error(`OtterPocketBase: Error executing alias "${alias}": ${error}`);
             return undefined;
         }

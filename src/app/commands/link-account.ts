@@ -4,7 +4,7 @@ import {
     GuildMember,
     InteractionContextType
 } from "discord.js";
-import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
+import {OtterPocketBase} from "../../otterbots/utils/pocketbase/pocketbase";
 import {UtilisateursDiscordType} from "../types/UtilisateursDiscordType";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
 
@@ -44,7 +44,7 @@ export default {
             await interaction.deferReply({flags: "Ephemeral"}); // pour gérer les réponses pouvant être un peu longues
 
             // On récupére les informations de l'utilisateur Discord
-            const utilisateur_infos = await Otterlyapi.getDataByAlias<UtilisateursDiscordType>("otr-utilisateursDiscord-getByDiscordId", member.id)
+            const utilisateur_infos = await OtterPocketBase.execByAlias<UtilisateursDiscordType>("otr-utilisateursDiscord-getByDiscordId", `discord_id="${member.id}"`);
 
             if (!utilisateur_infos) {
                 await interaction.editReply({
@@ -54,7 +54,7 @@ export default {
             }
 
             // On renvoie le code et l'id de l'utilisateur
-            const response = await Otterlyapi.postDataByAlias(
+            const response = await OtterPocketBase.execByAlias(
                 "otr-joueurs-link-account",
                 { code, utilisateur_id: utilisateur_infos.id }
             );
@@ -82,3 +82,4 @@ export default {
 
     }
 };
+

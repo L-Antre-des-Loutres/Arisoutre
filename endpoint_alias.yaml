@@ -1,0 +1,36 @@
+aliases:
+  - alias: otr-joueurs-link-account
+    collection: joueurs
+    action: create
+
+  - alias: otr-utilisateursDiscord-getByDiscordId
+    collection: discord_users
+    action: getFirstListItem
+
+  - alias: otr-utilisateursDiscord-getAll
+    collection: discord_users
+    action: getFullList
+
+  - alias: otr-utilisateursDiscord-create
+    collection: discord_users
+    action: create
+
+  - alias: otr-utilisateursDiscord-update
+    collection: discord_users
+    action: update
+
+  - alias: otr-utilisateursDiscord-resetDataSuppressionDate
+    collection: discord_users
+    action: update
+
+  - alias: otr-utilisateursDiscord-updateDataSuppressionDate
+    collection: discord_users
+    action: update
+
+  - alias: otr-utilisateursDiscordStats-getAll
+    collection: discord_user_stats
+    action: getFullList
+
+  - alias: otr-utilisateursDiscordStats-create
+    collection: discord_user_stats
+    action: create

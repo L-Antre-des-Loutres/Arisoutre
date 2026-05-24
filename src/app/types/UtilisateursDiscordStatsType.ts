@@ -3,6 +3,8 @@
  *
  * @typedef {Object} UtilisateursDiscordStatsType
  *
+ * @pocketbase {Collection} - discord_user_stats
+ *
  * @property {number} id - The unique identifier for the stats entry.
  * @property {number} id_utilisateur - The unique identifier of the user.
  * @property {number} nb_message - The total number of messages sent by the user.
@@ -12,14 +14,15 @@
  * @property {Channel[]} text_channels - A list of text channels where the user has sent messages.
  */
 export type UtilisateursDiscordStatsType = {
-    id: number
-    id_utilisateur: number
-    nb_message: number
+    id: string
+    discord_user: string
+    message_count: number
     vocal_time: number
     date_stats: string
     voice_channels?: ChannelActivity[]
     text_channels?: ChannelActivity[]
     vocal_with?: DiscordUser[]
+    date_stat: string
 }
 
 /**
