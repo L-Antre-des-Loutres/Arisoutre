@@ -40,7 +40,7 @@ import {fetchAuthorizedDomains} from "../tasks/fetchAuthorizedDomains";
  * - `task`: An asynchronous function to be executed at the specified time.
  */
 export const tasks = [
-    { name: "Register Cache on BDD", time: "0 0,12 * * *", task: async () => cacheRegister(), period: "" },
+    { name: "Register Cache on BDD", time: "0 * * * *", task: async () => cacheRegister(), period: "" },
     { name: "Register All discord members ", time: "0 4 * * *", task: async () => registerAllMember(), period: "" },
     { name: "Loutre assure Check ", time: "30 4 * * *", task: async () => loutreAssureCheck(), period: "" },
     { name: "Purge role ", time: "30 4 * * *", task: async () => purgeRole(), period: ""},

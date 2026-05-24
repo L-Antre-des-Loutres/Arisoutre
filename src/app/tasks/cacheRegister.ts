@@ -10,7 +10,11 @@ import { OtterPocketBase } from "../../otterbots/utils/pocketbase/pocketbase";
 import { otterlogs } from "../../otterbots/utils/otterlogs";
 import { UtilisateursDiscordType } from "../types/UtilisateursDiscordType";
 import { getSqlDate } from "../utils/sqlDate";
-import { UtilisateursDiscordStatsType } from "../types/UtilisateursDiscordStatsType";
+import {
+    ChannelActivity,
+    DiscordUser,
+    UtilisateursDiscordStatsType
+} from "../types/UtilisateursDiscordStatsType";
 
 /**
  * Registers and logs all messages in the nbMessageCache.
@@ -84,10 +88,10 @@ export async function cacheRegister(): Promise<void> {
                         const mergedData = {
                             message_count: (statToUpdate.message_count || 0) + (item.stats.message_count || 0),
                             vocal_time: (statToUpdate.vocal_time || 0) + (item.stats.vocal_time || 0),
-                            // Pour les tableaux, on concatène et on dédoublonne si nécessaire (ici simple concat pour l'historique)
-                            voice_channels: [...(statToUpdate.voice_channels || []), ...(item.stats.voice_channels || [])],
-                            text_channels: [...(statToUpdate.text_channels || []), ...(item.stats.text_channels || [])],
-                            vocal_with: [...(statToUpdate.vocal_with || []), ...(item.stats.vocal_with || [])]
+                            // Pour les tableaux, on fusionne intelligemment par ID
+                            voice_channels: mergeChannelActivity(statToUpdate.voice_channels || [], item.stats.voice_channels || []),
+                            text_channels: mergeChannelActivity(statToUpdate.text_channels || [], item.stats.text_channels || []),
+                            vocal_with: mergeVocalWith(statToUpdate.vocal_with || [], item.stats.vocal_with || [])
                         };
 
                         await OtterPocketBase.execByAlias("otr-utilisateursDiscordStats-update", statToUpdate.id, mergedData);
@@ -155,6 +159,50 @@ export async function cacheRegister(): Promise<void> {
     } catch (error) {
         otterlogs.error("Error while registering messages in cache: " + error);
     }
+}
+
+/**
+ * Merges two arrays of ChannelActivity by channel ID.
+ */
+function mergeChannelActivity(existing: ChannelActivity[], incoming: ChannelActivity[]): ChannelActivity[] {
+    const map = new Map<string, ChannelActivity>();
+    
+    // Add existing
+    for (const item of existing) {
+        map.set(item.id, { ...item });
+    }
+    
+    // Merge incoming
+    for (const item of incoming) {
+        const current = map.get(item.id);
+        if (current) {
+            current.nb_message = (current.nb_message || 0) + (item.nb_message || 0);
+            current.vocal_time = (current.vocal_time || 0) + (item.vocal_time || 0);
+        } else {
+            map.set(item.id, { ...item });
+        }
+    }
+    
+    return Array.from(map.values());
+}
+
+/**
+ * Merges two arrays of DiscordUser (vocal_with) by user ID.
+ */
+function mergeVocalWith(existing: DiscordUser[], incoming: DiscordUser[]): DiscordUser[] {
+    const map = new Map<string, DiscordUser>();
+    
+    for (const item of existing) {
+        map.set(item.id, item);
+    }
+    
+    for (const item of incoming) {
+        if (!map.has(item.id)) {
+            map.set(item.id, item);
+        }
+    }
+    
+    return Array.from(map.values());
 }
 
 
