@@ -31,8 +31,19 @@ export async function registerAllMember() {
         let updatedCount = 0;
 
         for (const member of members.values()) {
-            const user: UtilisateursDiscordType | undefined =
-                await OtterPocketBase.execByAlias<UtilisateursDiscordType>("otr-utilisateursDiscord-getByDiscordId", `discord_id="${member.user.id}"`);
+            const users = await OtterPocketBase.execByAlias<UtilisateursDiscordType[]>(
+                "otr-utilisateursDiscord-getAll",
+                { filter: `discord_id="${member.user.id}"`, sort: 'created' }
+            ) || [];
+
+            const user: UtilisateursDiscordType | undefined = users[0];
+
+            if (users.length > 1) {
+                otterlogs.warn(`Duplicate found for ${member.user.username} (${member.user.id}). Purging ${users.length - 1} duplicates.`);
+                for (let i = 1; i < users.length; i++) {
+                    await OtterPocketBase.execByAlias("otr-utilisateursDiscord-delete", users[i].id);
+                }
+            }
 
             const isBot = member.user.bot;
             const hasNoData = await hasNoDataRole(member);

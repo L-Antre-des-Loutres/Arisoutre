@@ -1,4 +1,8 @@
 aliases:
+  - alias: otr-players-create
+    collection: players
+    action: create
+
   - alias: otr-joueurs-link-account
     collection: joueurs
     action: create
@@ -6,6 +10,8 @@ aliases:
   - alias: otr-utilisateursDiscord-getByDiscordId
     collection: discord_users
     action: getFirstListItem
+    options:
+      sort: created
 
   - alias: otr-utilisateursDiscord-getAll
     collection: discord_users
@@ -26,6 +32,10 @@ aliases:
   - alias: otr-utilisateursDiscord-updateDataSuppressionDate
     collection: discord_users
     action: update
+
+  - alias: otr-utilisateursDiscord-delete
+    collection: discord_users
+    action: delete
 
   - alias: otr-utilisateursDiscordStats-getAll
     collection: discord_user_stats

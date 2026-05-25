@@ -32,6 +32,8 @@ export type UtilisateursDiscordType = {
     first_active_at?: string
     last_active_at?: string
     delete_at: string | null;
+    created: string;
+    updated: string;
 }
 
 /**
