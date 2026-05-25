@@ -98,51 +98,71 @@ export class OtterPocketBase {
             return undefined;
         }
 
-        try {
-            const collection = OtterPocketBase.pb.collection(aliasConfig.collection);
-            let result: unknown;
+        const maxRetries = 3;
+        let attempt = 0;
 
-            switch (aliasConfig.action) {
-                case 'getList':
-                    result = await collection.getList(params[0] as number || 1, params[1] as number || 30, (params[2] || aliasConfig.options) as Record<string, unknown>);
-                    break;
-                case 'getOne':
-                    result = await collection.getOne(params[0] as string, (params[1] || aliasConfig.options) as Record<string, unknown>);
-                    break;
-                case 'getFullList':
-                    result = await collection.getFullList((params[0] || aliasConfig.options) as Record<string, unknown>);
-                    break;
-                case 'getFirstListItem':
-                    result = await collection.getFirstListItem(params[0] as string, (params[1] || aliasConfig.options) as Record<string, unknown>);
-                    break;
-                case 'create':
-                    result = await collection.create(params[0] as Record<string, unknown>, (params[1] || aliasConfig.options) as Record<string, unknown>);
-                    break;
-                case 'update':
-                    result = await collection.update(params[0] as string, params[1] as Record<string, unknown>, (params[2] || aliasConfig.options) as Record<string, unknown>);
-                    break;
-                case 'delete':
-                    result = await collection.delete(params[0] as string, (params[1] || aliasConfig.options) as Record<string, unknown>);
-                    break;
-                default:
-                    otterlogs.error(`OtterPocketBase: Action "${aliasConfig.action}" not supported.`);
+        while (attempt < maxRetries) {
+            try {
+                const collection = OtterPocketBase.pb.collection(aliasConfig.collection);
+                let result: unknown;
+
+                // On s'assure que l'auto-cancellation est désactivée pour cette requête
+                const options = {
+                    ...((params[params.length - 1] as Record<string, unknown>) || aliasConfig.options),
+                    requestKey: null
+                };
+
+                switch (aliasConfig.action) {
+                    case 'getList':
+                        result = await collection.getList(params[0] as number || 1, params[1] as number || 30, options);
+                        break;
+                    case 'getOne':
+                        result = await collection.getOne(params[0] as string, options);
+                        break;
+                    case 'getFullList':
+                        result = await collection.getFullList(options);
+                        break;
+                    case 'getFirstListItem':
+                        result = await collection.getFirstListItem(params[0] as string, options);
+                        break;
+                    case 'create':
+                        result = await collection.create(params[0] as Record<string, unknown>, options);
+                        break;
+                    case 'update':
+                        result = await collection.update(params[0] as string, params[1] as Record<string, unknown>, options);
+                        break;
+                    case 'delete':
+                        result = await collection.delete(params[0] as string, options);
+                        break;
+                    default:
+                        otterlogs.error(`OtterPocketBase: Action "${aliasConfig.action}" not supported.`);
+                        return undefined;
+                }
+
+                return result as T;
+            } catch (error) {
+                if (error instanceof ClientResponseError && error.status === 404) {
                     return undefined;
-            }
+                }
+                
+                if (error instanceof ClientResponseError && (error.status === 0 || error.status >= 500)) {
+                    attempt++;
+                    if (attempt < maxRetries) {
+                        const delay = attempt * 1000;
+                        otterlogs.warn(`OtterPocketBase: Alias "${alias}" failed (Status ${error.status}). Retrying in ${delay}ms... (Attempt ${attempt}/${maxRetries})`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                }
 
-            return result as T;
-        } catch (error) {
-            if (error instanceof ClientResponseError && error.status === 404) {
-                // Expected behavior when checking if something exists (e.g. getFirstListItem, getOne)
+                if (error instanceof ClientResponseError) {
+                    otterlogs.error(`OtterPocketBase: Error executing alias "${alias}" (Status ${error.status}): ${error.message} - Data: ${JSON.stringify(error.data)}`);
+                } else {
+                    otterlogs.error(`OtterPocketBase: Unexpected error executing alias "${alias}": ${error}`);
+                }
+                
                 return undefined;
             }
-            
-            if (error instanceof ClientResponseError) {
-                otterlogs.error(`OtterPocketBase: Error executing alias "${alias}" (Status ${error.status}): ${error.message} - Data: ${JSON.stringify(error.data)}`);
-            } else {
-                otterlogs.error(`OtterPocketBase: Unexpected error executing alias "${alias}": ${error}`);
-            }
-            
-            return undefined;
         }
     }
 
