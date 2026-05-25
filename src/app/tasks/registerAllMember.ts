@@ -27,16 +27,28 @@ export async function registerAllMember() {
     try {
         // On récupère tous les membres de la guilde
         const members = await guild.members.fetch();
+
+        // Optimisation : On récupère tous les utilisateurs de la BDD d'un coup pour éviter de spammer PocketBase
+        const allDbUsers = await OtterPocketBase.execByAlias<UtilisateursDiscordType[]>(
+            "otr-utilisateursDiscord-getAll",
+            { sort: 'created' }
+        ) || [];
+
+        // On groupe les utilisateurs par discord_id
+        const dbUsersMap = new Map<string, UtilisateursDiscordType[]>();
+        for (const u of allDbUsers) {
+            if (!dbUsersMap.has(u.discord_id)) {
+                dbUsersMap.set(u.discord_id, []);
+            }
+            dbUsersMap.get(u.discord_id)!.push(u);
+        }
+
         let registeredCount = 0;
         let updatedCount = 0;
 
         for (const member of members.values()) {
-            const users = await OtterPocketBase.execByAlias<UtilisateursDiscordType[]>(
-                "otr-utilisateursDiscord-getAll",
-                { filter: `discord_id="${member.user.id}"`, sort: 'created' }
-            ) || [];
-
-            const user: UtilisateursDiscordType | undefined = users[0];
+            const users = dbUsersMap.get(member.user.id) || [];
+            let user: UtilisateursDiscordType | undefined = users[0];
 
             if (users.length > 1) {
                 otterlogs.warn(`Duplicate found for ${member.user.username} (${member.user.id}). Purging ${users.length - 1} duplicates.`);
@@ -52,11 +64,12 @@ export async function registerAllMember() {
             const avatarUrl = member.user.displayAvatarURL({ extension: 'png', size: 512 });
             const joinDateDiscord = member.joinedAt?.toISOString();
 
-            const roles = JSON.stringify(member.roles.cache.map(role => ({
+            const rolesList = member.roles.cache.map(role => ({
                 id: role.id,
                 name: role.name,
                 color: role.hexColor
-            })));
+            }));
+            const roles = JSON.stringify(rolesList);
 
             // --- CAS 1 : L'utilisateur n'existe pas ---
             if (!user) {
@@ -76,20 +89,27 @@ export async function registerAllMember() {
 
             // --- CAS 2 : L'utilisateur existe et n'a PAS le rôle no_data ---
             if (!hasNoData) {
-                await OtterPocketBase.execByAlias("otr-utilisateursDiscord-update", user.id, {
-                    discord_id: member.user.id,
-                    username: member.displayName,
-                    discord_tag: member.user.tag,
-                    avatar_url: avatarUrl,
-                    joined_at: joinDateDiscord,
-                    roles: roles
-                });
+                // Optimisation : On ne met à jour que si nécessaire
+                const currentRoles = JSON.stringify(user.roles);
+                const hasChanged =
+                    user.username !== member.displayName ||
+                    user.discord_tag !== member.user.tag ||
+                    user.avatar_url !== avatarUrl ||
+                    user.joined_at !== joinDateDiscord ||
+                    currentRoles !== roles;
 
-                await OtterPocketBase.execByAlias("otr-utilisateursDiscord-resetDataSuppressionDate", user.id, {
-                    delete_at: null,
-                })
-
-                updatedCount++;
+                if (hasChanged || user.delete_at !== null) {
+                    await OtterPocketBase.execByAlias("otr-utilisateursDiscord-update", user.id, {
+                        discord_id: member.user.id,
+                        username: member.displayName,
+                        discord_tag: member.user.tag,
+                        avatar_url: avatarUrl,
+                        joined_at: joinDateDiscord,
+                        roles: roles,
+                        delete_at: null // On reset la date de suppression si elle existait
+                    });
+                    updatedCount++;
+                }
                 continue;
             }
 
