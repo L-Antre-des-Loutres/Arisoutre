@@ -32,10 +32,7 @@ export async function cacheRegister(): Promise<void> {
         const uniqueDiscordIds = new Set([...nbMessageCache.keys(), ...vocalTimeCache.keys()]);
 
         const today = new Date();
-        const day = String(today.getDate()).padStart(2, '0');
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const year = today.getFullYear();
-        const dateStr = `${day}/${month}/${year}`;
+        const dateStr = today.toISOString().split('T')[0];
 
         for (const discordId of uniqueDiscordIds) {
             // Récupération de l'id en BDD
@@ -63,6 +60,7 @@ export async function cacheRegister(): Promise<void> {
                 message_count: nbMessages,
                 vocal_time: vocalTime,
                 date_stats: dateStr,
+                date_stat: dateStr,
                 voice_channels: voiceChannels,
                 text_channels: textChannels,
                 vocal_with: vocalWith
@@ -80,12 +78,18 @@ export async function cacheRegister(): Promise<void> {
             for (const item of statsToPush) {
                 try {
                     // On vérifie si une stat existe déjà pour cet utilisateur et ce jour
-                    const existingStat = await OtterPocketBase.execByAlias<UtilisateursDiscordStatsType>(
+                    // On cherche sur date_stats ou date_stat pour être sûr d'accumuler sur l'existant
+                    const existingStat = await OtterPocketBase.execByAlias<UtilisateursDiscordStatsType[]>(
                         "otr-utilisateursDiscordStats-getAll",
-                        { filter: `discord_user="${item.stats.discord_user}" && date_stats="${item.stats.date_stats}"` }
+                        { filter: `discord_user="${item.stats.discord_user}" && (date_stats="${item.stats.date_stats}" || date_stat="${item.stats.date_stats}")` }
                     );
 
-                    const statToUpdate = Array.isArray(existingStat) ? existingStat[0] : null;
+                    if (existingStat === undefined) {
+                        otterlogs.error(`Error fetching existing stats for user ${item.discordId}. Skipping to avoid duplicates.`);
+                        continue;
+                    }
+
+                    const statToUpdate = existingStat.length > 0 ? existingStat[0] : null;
 
                     if (statToUpdate) {
                         // MERGE : On additionne les valeurs

@@ -5,13 +5,13 @@
  *
  * @pocketbase {Collection} - discord_user_stats
  *
- * @property {number} id - The unique identifier for the stats entry.
- * @property {number} id_utilisateur - The unique identifier of the user.
- * @property {number} nb_message - The total number of messages sent by the user.
- * @property {number} vocal_time - The total time the user spent in voice channels, measured in seconds.
- * @property {string} date_stats - The date the statistics are recorded, in ISO 8601 format.
- * @property {Channel[]} voice_channels - A list of voice channels where the user has participated.
- * @property {Channel[]} text_channels - A list of text channels where the user has sent messages.
+ * @property {string} id - The unique identifier for the stats entry.
+ * @property {string} discord_user - The unique identifier of the user (PocketBase ID).
+ * @property {number} message_count - The total number of messages sent by the user.
+ * @property {number} vocal_time - The total time the user spent in voice channels, measured in decimal hours.
+ * @property {string} date_stats - The date the statistics are recorded, in ISO 8601 format (YYYY-MM-DD).
+ * @property {ChannelActivity[]} voice_channels - A list of voice channels where the user has participated.
+ * @property {ChannelActivity[]} text_channels - A list of text channels where the user has sent messages.
  */
 export type UtilisateursDiscordStatsType = {
     id: string
@@ -22,7 +22,7 @@ export type UtilisateursDiscordStatsType = {
     voice_channels?: ChannelActivity[]
     text_channels?: ChannelActivity[]
     vocal_with?: DiscordUser[]
-    date_stat: string
+    date_stat?: string
 }
 
 /**
