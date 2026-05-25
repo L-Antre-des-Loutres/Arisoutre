@@ -27,12 +27,20 @@ export async function registerAllMember() {
     try {
         // On récupère tous les membres de la guilde
         const members = await guild.members.fetch();
+        otterlogs.log(`Fetched ${members.size} members from Discord.`);
 
         // Optimisation : On récupère tous les utilisateurs de la BDD d'un coup pour éviter de spammer PocketBase
         const allDbUsers = await OtterPocketBase.execByAlias<UtilisateursDiscordType[]>(
             "otr-utilisateursDiscord-getAll",
             { sort: 'created' }
-        ) || [];
+        );
+
+        if (allDbUsers === undefined) {
+            otterlogs.error("Could not fetch users from database. Aborting registration task.");
+            return;
+        }
+
+        otterlogs.log(`Fetched ${allDbUsers.length} users from database.`);
 
         // On groupe les utilisateurs par discord_id
         const dbUsersMap = new Map<string, UtilisateursDiscordType[]>();
@@ -62,27 +70,35 @@ export async function registerAllMember() {
 
             // Valeurs communes
             const avatarUrl = member.user.displayAvatarURL({ extension: 'png', size: 512 });
-            const joinDateDiscord = member.joinedAt?.toISOString();
+            const joinDateDiscord = member.joinedAt?.toISOString() || "";
 
             const rolesList = member.roles.cache.map(role => ({
                 id: role.id,
                 name: role.name,
                 color: role.hexColor
             }));
-            const roles = JSON.stringify(rolesList);
+            const rolesStr = JSON.stringify(rolesList);
 
             // --- CAS 1 : L'utilisateur n'existe pas ---
             if (!user) {
                 if (!isBot && !hasNoData) {
-                    await OtterPocketBase.execByAlias("otr-utilisateursDiscord-create", {
+                    otterlogs.debug(`Registering new user: ${member.displayName} (${member.user.id})`);
+                    const result = await OtterPocketBase.execByAlias("otr-utilisateursDiscord-create", {
                         discord_id: member.user.id,
                         username: member.displayName,
                         discord_tag: member.user.tag,
                         avatar_url: avatarUrl,
                         joined_at: joinDateDiscord,
-                        roles: roles
+                        roles: rolesList // On passe l'objet directement, le SDK gère le JSON
                     });
-                    registeredCount++;
+                    
+                    if (result) {
+                        registeredCount++;
+                        // On l'ajoute à la map pour éviter d'éventuels doublons si le script tourne deux fois par erreur
+                        dbUsersMap.set(member.user.id, [result as UtilisateursDiscordType]);
+                        // Petit délai pour ne pas spammer PocketBase
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
                 }
                 continue;
             }
@@ -90,22 +106,23 @@ export async function registerAllMember() {
             // --- CAS 2 : L'utilisateur existe et n'a PAS le rôle no_data ---
             if (!hasNoData) {
                 // Optimisation : On ne met à jour que si nécessaire
-                const currentRoles = JSON.stringify(user.roles);
+                const currentRolesStr = JSON.stringify(user.roles);
                 const hasChanged =
                     user.username !== member.displayName ||
                     user.discord_tag !== member.user.tag ||
                     user.avatar_url !== avatarUrl ||
                     user.joined_at !== joinDateDiscord ||
-                    currentRoles !== roles;
+                    currentRolesStr !== rolesStr;
 
                 if (hasChanged || user.delete_at !== null) {
+                    otterlogs.debug(`Updating user: ${member.displayName} (${member.user.id})`);
                     await OtterPocketBase.execByAlias("otr-utilisateursDiscord-update", user.id, {
                         discord_id: member.user.id,
                         username: member.displayName,
                         discord_tag: member.user.tag,
                         avatar_url: avatarUrl,
                         joined_at: joinDateDiscord,
-                        roles: roles,
+                        roles: rolesList, // On passe l'objet directement
                         delete_at: null // On reset la date de suppression si elle existait
                     });
                     updatedCount++;

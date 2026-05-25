@@ -59,7 +59,6 @@ export default {
                 "otr-linkingCode-getByCode",
                 `linking_code="${code}"`
             );
-            otterlogs.debug(`LinkAccount: linking_data for code ${code}: ${JSON.stringify(linking_data)}`);
 
             if (!linking_data || (linking_data.used_at && linking_data.used_at !== "")) {
                 await interaction.editReply({

@@ -135,7 +135,13 @@ export class OtterPocketBase {
                 // Expected behavior when checking if something exists (e.g. getFirstListItem, getOne)
                 return undefined;
             }
-            otterlogs.error(`OtterPocketBase: Error executing alias "${alias}": ${error}`);
+            
+            if (error instanceof ClientResponseError) {
+                otterlogs.error(`OtterPocketBase: Error executing alias "${alias}" (Status ${error.status}): ${error.message} - Data: ${JSON.stringify(error.data)}`);
+            } else {
+                otterlogs.error(`OtterPocketBase: Unexpected error executing alias "${alias}": ${error}`);
+            }
+            
             return undefined;
         }
     }

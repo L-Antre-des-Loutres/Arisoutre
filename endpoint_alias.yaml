@@ -56,3 +56,11 @@ aliases:
   - alias: otr-utilisateursDiscordStats-create
     collection: discord_user_stats
     action: create
+
+  - alias: otr-utilisateursDiscordStats-update
+    collection: discord_user_stats
+    action: update
+
+  - alias: otr-utilisateursDiscordStats-delete
+    collection: discord_user_stats
+    action: delete

@@ -8,18 +8,16 @@
  * @pocketbase {Collection} - discord_users
  *
  * Fields:
- * - `id`: A unique numeric identifier for the user in the system.
+ * - `id`: A unique identifier for the user in the system.
  * - `discord_id`: The user's Discord ID as a string.
- * - `pseudo_discord`: The user's Discord pseudonym or username without discriminator.
- * - `join_date_discord`: The date the user joined the Discord server, if available.
- * - `first_activity`: The timestamp of the user's first recorded activity, if applicable (optional).
- * - `last_activity`: The timestamp of the user's last recorded activity, if applicable (optional).
- * - `nb_message`: The total number of messages sent by the user in the server.
- * - `tag_discord`: The user's complete Discord tag, including username and discriminator (e.g., "username#1234").
+ * - `username`: The user's Discord display name.
+ * - `joined_at`: The date the user joined the Discord server.
+ * - `first_active_at`: The timestamp of the user's first recorded activity (optional).
+ * - `last_active_at`: The timestamp of the user's last recorded activity (optional).
+ * - `discord_tag`: The user's complete Discord tag.
  * - `avatar_url`: URL of the Discord avatar image associated with the user.
- * - `vocal_time`: Total time the user has spent in voice channels, represented as a number.
  * - `roles`: An array of roles associated with the user. Each role is represented as a `Roles` object.
- * - `delete_date`: The date when the user's data was deleted, or null if the user is still active.
+ * - `delete_at`: The date when the user's data was marked for deletion, or null if the user is still active.
  */
 export type UtilisateursDiscordType = {
     id: string
@@ -32,6 +30,8 @@ export type UtilisateursDiscordType = {
     first_active_at?: string
     last_active_at?: string
     delete_at: string | null;
+    created?: string;
+    updated?: string;
 }
 
 /**
