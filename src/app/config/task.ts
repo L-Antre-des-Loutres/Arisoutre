@@ -31,7 +31,6 @@ import { registerAllMember } from "../tasks/registerAllMember";
 import {loutreAssureCheck} from "../tasks/loutreAssureCheck";
 import {purgeRole} from "../tasks/purgeRole";
 import {fetchAuthorizedDomains} from "../tasks/fetchAuthorizedDomains";
-import {fixEmptyStats} from "../utils/fixEmptyStats";
 
 /**
  * Represents a list of scheduled tasks with their respective configurations.
@@ -51,10 +50,6 @@ export const tasks = [
 export async function taskOnStart() {
     // On attend que l'enregistrement de tous les membres soit terminé avant de continuer
     await registerAllMember();
-
-    // On initialise les statistiques vides pour les utilisateurs qui n'en ont pas
-    await fixEmptyStats();
-
     // fetchAuthorizedDomains() a besoin que les routes API soient chargées (déjà fait dans bot.start())
     await fetchAuthorizedDomains();
 }

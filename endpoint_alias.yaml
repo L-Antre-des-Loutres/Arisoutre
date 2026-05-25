@@ -3,6 +3,18 @@ aliases:
     collection: players
     action: create
 
+  - alias: otr-players-update
+    collection: players
+    action: update
+
+  - alias: otr-linkingCode-getByCode
+    collection: linking_codes
+    action: getFirstListItem
+
+  - alias: otr-linkingCode-update
+    collection: linking_codes
+    action: update
+
   - alias: otr-joueurs-link-account
     collection: joueurs
     action: create

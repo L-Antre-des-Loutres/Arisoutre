@@ -48,7 +48,7 @@ export async function registerAllMember() {
 
         for (const member of members.values()) {
             const users = dbUsersMap.get(member.user.id) || [];
-            let user: UtilisateursDiscordType | undefined = users[0];
+            const user: UtilisateursDiscordType | undefined = users[0];
 
             if (users.length > 1) {
                 otterlogs.warn(`Duplicate found for ${member.user.username} (${member.user.id}). Purging ${users.length - 1} duplicates.`);

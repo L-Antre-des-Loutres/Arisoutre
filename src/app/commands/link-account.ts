@@ -6,6 +6,7 @@ import {
 } from "discord.js";
 import {OtterPocketBase} from "../../otterbots/utils/pocketbase/pocketbase";
 import {UtilisateursDiscordType} from "../types/UtilisateursDiscordType";
+import {LinkingCodeType} from "../types/LinkingCodeType";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
 
 export default {
@@ -53,18 +54,38 @@ export default {
                 return;
             }
 
-            // On renvoie le code et l'id de l'utilisateur
-            const response = await OtterPocketBase.execByAlias(
-                "otr-joueurs-link-account",
-                { code, utilisateur_id: utilisateur_infos.id }
+            // On récupère le code de liaison
+            const linking_data = await OtterPocketBase.execByAlias<LinkingCodeType>(
+                "otr-linkingCode-getByCode",
+                `linking_code="${code}"`
             );
+            otterlogs.debug(`LinkAccount: linking_data for code ${code}: ${JSON.stringify(linking_data)}`);
 
-            if (!response) {
+            if (!linking_data || (linking_data.used_at && linking_data.used_at !== "")) {
                 await interaction.editReply({
                     content: "Le code de liaison est invalide ou a déjà été utilisé.",
                 });
                 return;
             }
+
+            // On met à jour le joueur avec l'id de l'utilisateur Discord
+            const update_player = await OtterPocketBase.execByAlias(
+                "otr-players-update",
+                linking_data.player,
+                { discord_user: utilisateur_infos.id }
+            );
+
+            if (!update_player) {
+                await interaction.editReply({
+                    content: "Une erreur est survenue lors de la mise à jour de votre compte joueur.",
+                });
+                return;
+            }
+
+            // On marque le code comme utilisé
+            await OtterPocketBase.execByAlias("otr-linkingCode-update", linking_data.id, {
+                used_at: new Date().toISOString()
+            });
 
             await interaction.editReply({
                 content: "La liaison avec votre compte a bien été effectué.",
