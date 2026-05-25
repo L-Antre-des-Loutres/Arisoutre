@@ -67,7 +67,11 @@ export async function cacheRegister(): Promise<void> {
                 text_channels: textChannels,
                 vocal_with: vocalWith
             };
-            statsToPush.push({ discordId, stats });
+
+            // On n'enregistre que s'il y a de l'activité
+            if (nbMessages > 0 || vocalTime > 0) {
+                statsToPush.push({ discordId, stats });
+            }
         }
 
         if (statsToPush.length > 0) {

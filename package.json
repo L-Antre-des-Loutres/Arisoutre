@@ -21,6 +21,7 @@
     "start": "node ./build/app/index.js",
     "purge-duplicates": "npx ts-node src/app/utils/purgeDuplicates.ts",
     "purge-orphan-stats": "npx ts-node src/app/utils/purgeOrphanStats.ts",
+    "purge-empty-stats": "npx ts-node src/app/utils/purgeEmptyStats.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
