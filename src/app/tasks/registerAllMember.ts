@@ -126,6 +126,8 @@ export async function registerAllMember() {
                         delete_at: null // On reset la date de suppression si elle existait
                     });
                     updatedCount++;
+                    // Petit délai pour ne pas spammer PocketBase lors des updates
+                    await new Promise(resolve => setTimeout(resolve, 200));
                 }
                 continue;
             }

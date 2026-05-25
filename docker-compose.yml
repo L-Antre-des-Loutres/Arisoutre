@@ -19,3 +19,9 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    networks:
+      - pocketbase_network
+
+networks:
+  pocketbase_network:
+    external: true

@@ -3,6 +3,8 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 import { PocketBaseAlias, PocketBaseConfig } from './modules/PocketBaseTypes';
 import { otterlogs } from '../otterlogs';
+import http from 'http';
+import https from 'https';
 
 /**
  * OtterPocketBase utility class to manage PocketBase interactions using YAML aliases.
@@ -36,7 +38,19 @@ export class OtterPocketBase {
                 return;
             }
 
-            const pbInstance = new PocketBase(url);
+            // Optimisation pour Docker : Utilisation de Keep-Alive pour éviter les Status 0 / Connection Reset
+            const agentOptions = { keepAlive: true, timeout: 60000 };
+            const httpAgent = new http.Agent(agentOptions);
+            const httpsAgent = new https.Agent(agentOptions);
+
+            const pbInstance = new PocketBase(url, undefined);
+            
+            // Custom fetch pour gérer le Keep-Alive
+            pbInstance.beforeSend = (url, options) => {
+                options.agent = url.startsWith('https') ? httpsAgent : httpAgent;
+                return { url, options };
+            };
+
             pbInstance.autoCancellation(false);
 
             if (email && password) {
@@ -106,10 +120,27 @@ export class OtterPocketBase {
                 const collection = OtterPocketBase.pb.collection(aliasConfig.collection);
                 let result: unknown;
 
-                // On s'assure que l'auto-cancellation est désactivée pour cette requête
+                // Construction intelligente des options
+                // On ne prend pas le dernier paramètre s'il correspond à de la data (create/update)
+                let providedOptions: Record<string, unknown> = {};
+                const lastParam = params[params.length - 1];
+
+                if (params.length > 0 && typeof lastParam === 'object' && lastParam !== null && !Array.isArray(lastParam)) {
+                    // Si c'est un getList/getFullList/etc, le dernier param est souvent les options
+                    // Pour create/update, on vérifie si on a assez de params pour que le dernier soit les options
+                    if (
+                        (aliasConfig.action === 'create' && params.length > 1) ||
+                        (aliasConfig.action === 'update' && params.length > 2) ||
+                        (['getList', 'getFullList', 'getOne', 'getFirstListItem'].includes(aliasConfig.action))
+                    ) {
+                        providedOptions = lastParam as Record<string, unknown>;
+                    }
+                }
+
                 const options = {
-                    ...((params[params.length - 1] as Record<string, unknown>) || aliasConfig.options),
-                    requestKey: null
+                    ...(aliasConfig.options || {}),
+                    ...providedOptions,
+                    requestKey: null // On force la désactivation de l'auto-cancellation
                 };
 
                 switch (aliasConfig.action) {
