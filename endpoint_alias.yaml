@@ -7,6 +7,10 @@ aliases:
     collection: players
     action: update
 
+  - alias: otr-players-getByDiscordUser
+    collection: players
+    action: getFirstListItem
+
   - alias: otr-linkingCode-getByCode
     collection: linking_codes
     action: getFirstListItem
@@ -64,3 +68,11 @@ aliases:
   - alias: otr-utilisateursDiscordStats-delete
     collection: discord_user_stats
     action: delete
+
+  - alias: otr-badgesEarned-create
+    collection: badges_earned
+    action: create
+
+  - alias: otr-badgesEarned-getByUserAndBadge
+    collection: badges_earned
+    action: getFirstListItem
