@@ -78,10 +78,9 @@ export async function cacheRegister(): Promise<void> {
             for (const item of statsToPush) {
                 try {
                     // On vérifie si une stat existe déjà pour cet utilisateur et ce jour
-                    // On cherche sur date_stats ou date_stat pour être sûr d'accumuler sur l'existant
                     const existingStat = await OtterPocketBase.execByAlias<UtilisateursDiscordStatsType[]>(
                         "otr-utilisateursDiscordStats-getAll",
-                        { filter: `discord_user="${item.stats.discord_user}" && (date_stats="${item.stats.date_stats}" || date_stat="${item.stats.date_stats}")` }
+                        { filter: `discord_user='${item.stats.discord_user}' && date_stats='${item.stats.date_stats}'` }
                     );
 
                     if (existingStat === undefined) {

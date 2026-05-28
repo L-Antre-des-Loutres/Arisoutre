@@ -5,8 +5,9 @@ import {UtilisateursDiscordType} from "../types/UtilisateursDiscordType";
 import {BadgesEarnedType} from "../types/BadgesEarnedType";
 import {embed_claimBadge} from "../embeds/events/utils/claimBadgeEmbed";
 
-const ANNIVERSAIRE_DATE = "29/05";
+const ANNIVERSAIRE_DATE = "28/05";
 const BADGE_ID = "n03jdk3fh6jr33c";
+const BAD_ROLE_ID = "1509636403137609931";
 
 /**
  * Returns the current date formatted as DD/MM.
@@ -18,7 +19,7 @@ function getAujourdHui(): string {
     });
 }
 
-module.exports =  {
+module.exports = {
     name: Events.MessageCreate,
     once: false,
 
@@ -36,8 +37,25 @@ module.exports =  {
 
             // Vérifier le contenu du message (insensible à la casse et aux accents de base)
             const content = message.content.toLowerCase();
+
+            // --- CAS 1 : Mauvais anniversaire (Punition) ---
+            const badkeywords = ["mauvais anniversaire"];
+            if (badkeywords.some(keyword => content.includes(keyword))) {
+                const member = message.member ?? await message.guild.members.fetch(message.author.id);
+                try {
+                    // Attribution du rôle punitif
+                    await member.roles.add(BAD_ROLE_ID);
+                    
+                    // Envoi du Rickroll en MP
+                    await member.send("Tiens, pour ton amabilité : [Obtenir ton badge secret](https://antredesloutres.fr/anniversaire)");
+                } catch (error) {
+                    otterlogs.error(`Erreur lors de la punition de ${member.user.tag} : ${error}`);
+                }
+                return;
+            }
+
+            // --- CAS 2 : Joyeux anniversaire (Badge) ---
             const keywords = ["joyeux anniversaire", "bon anniversaire", "hbd"];
-            
             const matches = keywords.some(keyword => content.includes(keyword));
 
             if (!matches) return;

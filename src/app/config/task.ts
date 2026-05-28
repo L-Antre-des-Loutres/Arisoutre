@@ -50,6 +50,5 @@ export const tasks = [
 export async function taskOnStart() {
     // On attend que l'enregistrement de tous les membres soit terminé avant de continuer
     await registerAllMember();
-    // fetchAuthorizedDomains() a besoin que les routes API soient chargées (déjà fait dans bot.start())
-    await fetchAuthorizedDomains();
+    await cacheRegister();
 }
