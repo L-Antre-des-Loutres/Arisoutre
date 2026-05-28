@@ -76,3 +76,7 @@ aliases:
   - alias: otr-badgesEarned-getByUserAndBadge
     collection: badges_earned
     action: getFirstListItem
+
+  - alias: otr-badges-getOne
+    collection: badges
+    action: getOne
