@@ -1,4 +1,4 @@
-import {AutocompleteInteraction, ChatInputCommandInteraction, Client} from "discord.js";
+import {AutocompleteInteraction, Client} from "discord.js";
 import {otterlogs} from "../utils/otterlogs";
 import {SlashCommand} from "../types";
 
@@ -40,7 +40,7 @@ export async function otterBots_interactionCreate(client: Client): Promise<void>
         }
 
         try {
-            await command.execute(interaction as ChatInputCommandInteraction);
+            await command.execute(interaction);
         } catch (error) {
             otterlogs.error(`Error executing command ${interaction.commandName}: ${error}`);
 

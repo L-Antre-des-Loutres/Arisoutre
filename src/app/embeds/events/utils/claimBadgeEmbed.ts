@@ -15,11 +15,11 @@ export function embed_claimBadge(member: GuildMember, badgeIconUrl: string): Emb
             iconURL: member.displayAvatarURL()
         })
         .setTitle("🎂 Joyeux Anniversaire !")
-        .setDescription(`${member} souhaite un joyeux anniversaire à **l'Antre des Loutres** ! 🎉`)
+        .setDescription(`${member}, vous avez reçu un badge spécial pour avoir souhaité un joyeux anniversaire à **l'Antre des Loutres** ! 🎉`)
         .setThumbnail(badgeIconUrl)
         .addFields({
             name: "Badge Obtenu",
-            value: "Vous avez reçu le badge spécial d'anniversaire ! Merci de faire partie de la communauté. 🦦"
+            value: "Merci d'avoir pensé à nous ! Votre badge d'anniversaire a été ajouté à votre collection. 🦦"
         })
         .setFooter({text: `${process.env.BOT_NAME} • Anniversaire`})
         .setTimestamp();
