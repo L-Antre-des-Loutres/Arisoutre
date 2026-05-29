@@ -6,14 +6,13 @@ services:
     env_file:
       - .env
     volumes:
-      # Montage des fichiers de config
       - ./config:/app/config
-      # Montage du dossier de cache (persistance des données OtterCache)
       - ./cache:/app/cache
-      # Montage des alias PocketBase
       - ./endpoint_alias.yaml:/app/endpoint_alias.yaml
     ports:
       - "9501:3000"
+    extra_hosts:
+      - "pocketbase.antredesloutres.fr:host-gateway"
     logging:
       driver: "json-file"
       options:
