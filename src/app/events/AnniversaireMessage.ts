@@ -5,7 +5,7 @@ import {UtilisateursDiscordType} from "../types/UtilisateursDiscordType";
 import {BadgesEarnedType} from "../types/BadgesEarnedType";
 import {embed_claimBadge} from "../embeds/events/utils/claimBadgeEmbed";
 
-const ANNIVERSAIRE_DATE = "28/05";
+const ANNIVERSAIRE_DATE = "29/05";
 const BADGE_ID = "n03jdk3fh6jr33c";
 const BAD_ROLE_ID = "1509636403137609931";
 
