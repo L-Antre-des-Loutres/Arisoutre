@@ -75,8 +75,8 @@ export class OtterPocketBase {
     /**
      * Ensures the instance is initialized before any operation.
      */
-    private static async ensureInitialized(): Promise<void> {
-        if (!OtterPocketBase.initPromise) {
+    private static async ensureInitialized(force: boolean = false): Promise<void> {
+        if (force || !OtterPocketBase.initPromise || !OtterPocketBase.pb || !OtterPocketBase.pb.authStore.isValid) {
             OtterPocketBase.initPromise = OtterPocketBase.init();
         }
 
@@ -176,11 +176,17 @@ export class OtterPocketBase {
                     return undefined;
                 }
                 
-                if (error instanceof ClientResponseError && (error.status === 0 || error.status >= 500)) {
+                if (error instanceof ClientResponseError && (error.status === 0 || error.status === 401 || error.status >= 500)) {
                     attempt++;
                     if (attempt < maxRetries) {
                         const delay = attempt * 1000;
                         otterlogs.warn(`OtterPocketBase: Alias "${alias}" failed (Status ${error.status}). Retrying in ${delay}ms... (Attempt ${attempt}/${maxRetries})`);
+                        
+                        // Si l'erreur est liée à la connexion (0) ou à l'authentification (401), on force la réinitialisation
+                        if (error.status === 0 || error.status === 401) {
+                            await OtterPocketBase.ensureInitialized(true);
+                        }
+
                         await new Promise(resolve => setTimeout(resolve, delay));
                         continue;
                     }
