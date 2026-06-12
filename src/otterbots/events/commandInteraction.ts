@@ -1,6 +1,9 @@
-import {AutocompleteInteraction, Client} from "discord.js";
+import {AutocompleteInteraction, Client, EmbedBuilder, TextChannel} from "discord.js";
 import {otterlogs} from "../utils/otterlogs";
 import {SlashCommand} from "../types";
+import {OtterPocketBase} from "../utils/pocketbase/pocketbase";
+import {UtilisateursDiscordType} from "../../app/types/UtilisateursDiscordType";
+import discordConfig from "../../../config/discordConfig.json";
 
 /**
  * Handles interaction events for chat input commands and executes the appropriate command logic.
@@ -27,6 +30,61 @@ export async function otterBots_interactionCreate(client: Client): Promise<void>
                         { name: "⚠️ Erreur lors de l’autocomplétion", value: "error" },
                     ]);
                 } catch {}
+            }
+            return;
+        }
+
+        if (interaction.isButton()) {
+            if (interaction.customId === 'verify_user_button') {
+                try {
+                    const userInfo = await OtterPocketBase.execByAlias<UtilisateursDiscordType>(
+                        'otr-utilisateursDiscord-getByDiscordId',
+                        `discord_id="${interaction.user.id}"`
+                    );
+
+                    if (userInfo) {
+                        await OtterPocketBase.execByAlias(
+                            'otr-utilisateursDiscord-update',
+                            userInfo.id,
+                            { is_verified: true }
+                        );
+                        
+                        await interaction.reply({ content: "✅ Félicitations ! Vous êtes maintenant vérifié sur le serveur. Vous pouvez désormais envoyer des pièces jointes.", ephemeral: true });
+                        otterlogs.log(`L'utilisateur ${interaction.user.tag} s'est vérifié via le bouton.`);
+
+                        // Notification pour les modérateurs
+                        const modChannelId = discordConfig.channels.moderators;
+                        if (modChannelId) {
+                            try {
+                                const modChannel = await client.channels.fetch(modChannelId) as TextChannel;
+                                if (modChannel) {
+                                    const modEmbed = new EmbedBuilder()
+                                        .setColor("#57F287") // Success Green
+                                        .setTitle("✅ Nouvelle vérification")
+                                        .setDescription(`L'utilisateur **${interaction.user.tag}** vient de terminer sa vérification.`)
+                                        .addFields(
+                                            { name: "👤 Utilisateur", value: `<@${interaction.user.id}> (${interaction.user.id})`, inline: true },
+                                            { name: "📅 Date", value: `<t:${Math.floor(Date.now() / 1000)}:F>`, inline: true }
+                                        )
+                                        .setThumbnail(interaction.user.displayAvatarURL())
+                                        .setFooter({ text: "Système de Vérification" })
+                                        .setTimestamp();
+
+                                    await modChannel.send({ embeds: [modEmbed] });
+                                }
+                            } catch (modError) {
+                                otterlogs.error(`Erreur lors de l'envoi de la notification de vérification aux modérateurs: ${modError}`);
+                            }
+                        }
+                    } else {
+                        await interaction.reply({ content: "⚠️ Erreur : Votre profil n'a pas été trouvé dans notre base de données. Veuillez envoyer un message sur le serveur pour l'initialiser.", ephemeral: true });
+                    }
+                } catch (error) {
+                    otterlogs.error(`Erreur lors de la vérification via bouton pour ${interaction.user.tag}: ${error}`);
+                    if (!interaction.replied) {
+                        await interaction.reply({ content: "❌ Une erreur est survenue lors de la vérification.", ephemeral: true });
+                    }
+                }
             }
             return;
         }
