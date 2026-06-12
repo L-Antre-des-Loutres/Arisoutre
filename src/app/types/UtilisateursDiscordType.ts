@@ -30,6 +30,7 @@ export type UtilisateursDiscordType = {
     first_active_at?: string
     last_active_at?: string
     delete_at: string | null;
+    is_verified?: boolean
     created?: string;
     updated?: string;
 }
