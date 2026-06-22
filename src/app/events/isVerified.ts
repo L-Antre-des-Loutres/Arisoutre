@@ -32,17 +32,13 @@ module.exports = {
                 `discord_id="${member.id}"`
             );
 
-            if (!userInfo) {
-                otterlogs.debug(`Utilisateur ${member.user.tag} non trouvé en base de données.`);
-                return;
-            }
-
             // Expression régulière pour détecter les liens (http/https)
             const urlRegex = /(https?:\/\/[^\s]+)/g;
             const hasLinks = urlRegex.test(message.content);
+            const isVerified = userInfo ? userInfo.is_verified : false;
 
-            // Si l'utilisateur n'est pas vérifié et qu'il envoie une pièce jointe ou un lien, on supprime son message
-            if (!userInfo.is_verified && (message.attachments.size > 0 || hasLinks)) {
+            // Si l'utilisateur n'est pas vérifié (ou non trouvé en bdd) et qu'il envoie une pièce jointe ou un lien, on supprime son message
+            if (!isVerified && (message.attachments.size > 0 || hasLinks)) {
                 try {
                     const reason = message.attachments.size > 0 ? "une pièce jointe" : "un lien";
                     
@@ -82,8 +78,12 @@ module.exports = {
                 return;
             }
 
-            // On peut maintenant utiliser userInfo
+            if (!userInfo) {
+                otterlogs.debug(`Utilisateur ${member.user.tag} non trouvé en base de données.`);
+                return;
+            }
 
+            // On peut maintenant utiliser userInfo
 
 
         } catch (error) {

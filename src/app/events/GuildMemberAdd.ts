@@ -52,11 +52,29 @@ module.exports = {
                 (async () => {
                     try {
                         const user = await OtterPocketBase.execByAlias<UtilisateursDiscordType>("otr-utilisateursDiscord-getByDiscordId", `discord_id="${member.user.id}"`);
-                        // On vérifie que l'utilisateur n'as pas le rôle no_data avant de l'enregistrer en BDD
-                        if (user && !await hasNoDataRole(member)) {
+                        const hasNoData = await hasNoDataRole(member);
+                        
+                        if (user && !hasNoData) {
                             await OtterPocketBase.execByAlias("otr-utilisateursDiscord-resetDataSuppressionDate", user.id, {
                                 delete_at: null,
-                            })
+                            });
+                        } else if (!user && !hasNoData) {
+                            const avatarUrl = member.user.displayAvatarURL({ extension: 'png', size: 512 });
+                            const joinDateDiscord = member.joinedAt?.toISOString() || "";
+                            const rolesList = member.roles.cache.map(role => ({
+                                id: role.id,
+                                name: role.name,
+                                color: role.hexColor
+                            }));
+                            
+                            await OtterPocketBase.execByAlias("otr-utilisateursDiscord-create", {
+                                discord_id: member.user.id,
+                                username: member.displayName,
+                                discord_tag: member.user.tag,
+                                avatar_url: avatarUrl,
+                                joined_at: joinDateDiscord,
+                                roles: rolesList
+                            });
                         }
                     } catch (error) {
                         otterlogs.error("Error while registering member:" + error);
